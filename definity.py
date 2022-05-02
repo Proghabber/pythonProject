@@ -80,7 +80,7 @@ def kalendwr(a: list[int]) -> list[str]:
         b.append(i)
     return b
 
-def chenge_wiget( plan, check):
+def chenge_wiget():
 
     try:
         info = open("info.py", encoding='utf-8')
@@ -91,16 +91,18 @@ def chenge_wiget( plan, check):
         info.close()
     except:
         name_competer = False
+        check = 0
 
     if check == 1:
         text_info = Label(text=name_competer)
-        text_info.place(relx=0.35, rely=0)
+        return [text_info]
+
 
     else:
-        text_info = Text(plan, width=10, height=1, bg="white", fg="black")
-        text_info.place(relx=0.35, rely=0)
+        text_info = Text( width=10, height=1, bg="white", fg="black")
         klient_name = Button(text="Установить")
-        klient_name.place(relx=0.35, y=25)
+        return [text_info,klient_name]
+
 
 def show_widget(list_widget: list,flag):
 
