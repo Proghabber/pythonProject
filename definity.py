@@ -102,6 +102,23 @@ def chenge_wiget():
         text_info = Text( width=10, height=1, bg="white", fg="black")
         klient_name = Button(text="Установить")
         return [text_info,klient_name]
+def count_frame_button():
+    k = 1
+    list_name=[]
+    try:
+        list_button=open("keep_oders.py", encoding='utf-8')
+        read_list_button=list_button.readlines()
+        json_list_button=json.loads(read_list_button[0])
+        for i in json_list_button:
+            list_name.append(i)
+
+            k+=1
+        list_button.close()
+    except:
+        print("false")
+    return (k,list_name)
+
+
 
 
 def show_widget(list_widget: list,flag):
