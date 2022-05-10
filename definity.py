@@ -3,7 +3,8 @@ from pathlib import Path
 from tkinter import *
 from tkinter import ttk
 
-import sql
+
+import sqlite3
 
 class info_to_enter():
     """класс занимается приветствием пользователя и получением его именя если оно не известно
@@ -13,6 +14,8 @@ class info_to_enter():
         self.list_wiget=[]
         self.name=""
         self.place=wig
+    def get_name(self):
+        return  self.name
 
     def no_name(self,):
         """
@@ -57,7 +60,7 @@ class info_to_enter():
 
     def chenge_wiget(self,):
         """
-        опредиляет сохранено имя в файле, ида бто дает лабел с именем на табло, иначе запускает скрспт получения имени
+        опредиляет сохранено имя в файле, если да то дает лабел с именем на табло, иначе запускает скрспт получения имени
         """
         try:
             with open("info.json", "r") as read_file:
@@ -69,6 +72,33 @@ class info_to_enter():
 
         except:
             self.no_name()
+class work_sql():
+    def __init__(self):
+        self.path="base_data/sik.db"
+
+    def create_bd(self):
+        with sqlite3.connect(self.path) as content:
+            cursor = content.cursor()
+            cursor.execute("""CREATE TABLE IF NOT EXISTS articles(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            client VARCHAR,
+            topic VARCHAR,
+            text TEXT,
+            status TEXT
+            )""")
+
+    def print_table(self):
+        with sqlite3.connect(self.path) as content:
+            cursor = content.cursor()
+            cursor.execute("SELECT *FROM ARTICLES")
+            return cursor.fetchall()
+
+    def write_table(self,data):
+        with sqlite3.connect(self.path) as content:
+            cursor = content.cursor()
+            cursor.execute("SELECT *FROM ARTICLES")
+            cursor.executemany("INSERT INTO articles(client, topic, text, status) VALUES(?,?,?,?)", data)
+
 
 
 
@@ -96,36 +126,14 @@ def kalendwr(a: list[int]) -> list[str]:
 
 
 
-def count_frame_button():
-    k = 1
-    list_name=[]
-    try:
-        list_button=open("keep_oders.py", encoding='utf-8')
-        read_list_button=list_button.readlines()
-        json_list_button=json.loads(read_list_button[0])
-        for i in json_list_button:
-            list_name.append(i)
-
-            k+=1
-        list_button.close()
-    except:
-        print("false")
-    return (k,list_name)
 
 
 
 
-def show_widget(list_widget: list,flag):
 
-        if flag=="show":
-            list_widget[0].place_forget()
 
-        else:
-            list_widget[0].place()
 
-def return_sql():
-    ret=sql.print_table()
-    return ret
+
 
 def return_topic(sql):
     ret_list=[]

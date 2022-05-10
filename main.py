@@ -8,7 +8,8 @@ window.title("Программа оформления заявок")
 width = 660
 height = 500
 
-
+sql_table=definity.work_sql()
+sql_table.create_bd()
 window.geometry(f"{width}x{height}")
 date=datetime.datetime.today()
 date=definity.kalendwr([date.day, date.month,date.year])
@@ -60,8 +61,7 @@ date_label = Label(frame_info,text="Дата сегодня - " )
 date_now=Label(frame_info,text=date)
 
 text_enter=Text(tab1)
-scrol_text = Scrollbar(tab1,command=text_enter.yview)
-batton_send_info=Button(frame_sent,text="Отправить")
+
 
 
 
@@ -69,24 +69,31 @@ tabControl.place(relx=0, rely=0,relwidth=1, relheight=1 )
 tab2.place()
 tab1.place()
 frame_info.pack(anchor=W)
-frame_sent.pack(anchor=W,pady=2)
-batton_send_info.pack()
+frame_sent.pack(anchor=W,pady=2,expand=1,fill=X)
+
 date_label.pack(side=LEFT,ipadx=10 )
 date_now.pack(side=LEFT,ipadx=10 )
 klient.pack(side=LEFT ,ipadx=10)
 #for i in text_info:
    # i.pack(in_=frame_info,side=LEFT,ipadx=10)
-sio=definity.info_to_enter(frame_info)
-sio.chenge_wiget()
+meet=definity.info_to_enter(frame_info)
+meet.chenge_wiget()
 
 frame_text.pack(expand=1,fill=BOTH,side=LEFT,)
+text_enter_themm=Text(frame_sent,height=1)
 text_enter.pack(in_=frame_text,anchor=NW,expand=1,fill=BOTH,side=LEFT)
-batton_send_info.pack(anchor=N,side=TOP)
+scrol_text = Scrollbar(tab1,command=text_enter.yview)
+batton_send_info=Button(frame_sent,text="Отправить",command= lambda:sql_table.write_table([(meet.get_name(),text_enter_themm.get(1.0, END),text_enter.get(1.0, END),"актуально")]))
+text_enter_themm.pack(anchor=N,expand=1,fill=X,side=BOTTOM)
+batton_send_info.pack(side=LEFT)
+
+
 scrol_text.pack(in_=frame_text,anchor=NE,fill=Y,side=RIGHT)
 text_enter.config(yscrollcommand=scrol_text.set)
 
 
-topic=definity.return_sql()
+
+topic=sql_table.print_table()
 
 
 frame_tab2=Frame(tab2)
