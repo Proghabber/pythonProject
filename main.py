@@ -55,11 +55,10 @@ frame_info=Frame(tab1)
 frame_text=Frame(tab1)
 frame_sent=Frame(tab1)
 klient = Label(frame_info,text="Имя клиента - " )
-text_info = definity.chenge_wiget()
-
 
 date_label = Label(frame_info,text="Дата сегодня - " )
 date_now=Label(frame_info,text=date)
+
 text_enter=Text(tab1)
 scrol_text = Scrollbar(tab1,command=text_enter.yview)
 batton_send_info=Button(frame_sent,text="Отправить")
@@ -75,8 +74,10 @@ batton_send_info.pack()
 date_label.pack(side=LEFT,ipadx=10 )
 date_now.pack(side=LEFT,ipadx=10 )
 klient.pack(side=LEFT ,ipadx=10)
-for i in text_info:
-    i.pack(in_=frame_info,side=LEFT,ipadx=10)
+#for i in text_info:
+   # i.pack(in_=frame_info,side=LEFT,ipadx=10)
+sio=definity.info_to_enter(frame_info)
+sio.chenge_wiget()
 
 frame_text.pack(expand=1,fill=BOTH,side=LEFT,)
 text_enter.pack(in_=frame_text,anchor=NW,expand=1,fill=BOTH,side=LEFT)
@@ -85,27 +86,26 @@ scrol_text.pack(in_=frame_text,anchor=NE,fill=Y,side=RIGHT)
 text_enter.config(yscrollcommand=scrol_text.set)
 
 
+topic=definity.return_sql()
 
 
-frame_button=Frame(tab2)
-skroll_button=Text(tab2)
-list_result=definity.count_frame_button()
-list_button=[]
-for i in list_result[1]:
-    list_button.append(Button(text=i))
-print(list_result[0]*20)
-skroll_button.place(x=0,y=0,relwidth=1,height=list_result[0]*20)
-k=0
-for i in list_button:
-    i.place_configure(in_=skroll_button,relwidth=1)
-    i.place(y=k)
-    k+=25
+frame_tab2=Frame(tab2)
+frame_select=Frame(frame_tab2)
+skroll_button=ttk.Combobox(values=definity.return_topic(topic))
 
 
+skroll_button.pack(in_=frame_select,anchor=NW,expand=1,fill=BOTH,side=LEFT)
+frame_select.pack(fill=X,)
 
-
-
-
+frame_text_oders=Frame(frame_tab2)
+text_oders=Text(frame_text_oders)
+scrol_text_oders=Scrollbar(frame_text_oders)
+text_oders.pack(in_=frame_text_oders,anchor=NE,expand=1,fill=X,side=LEFT)
+scrol_text_oders.pack(in_=frame_text_oders,fill=Y,side=RIGHT)
+text_oders.config(yscrollcommand=scrol_text_oders.set)
+frame_text_oders.pack(anchor=NW,expand=1,fill=BOTH,)
+frame_tab2.place(relx=0, rely=0,relwidth=1, relheight=1 )
+frame_tab2.bind("<Enter>", lambda e: definity.return_info_in_sql(skroll_button.get(),topic,text_oders))
 #definity.show_widget([frame],"show")
 
 window.mainloop()
