@@ -99,6 +99,79 @@ class work_sql():
             cursor.execute("SELECT *FROM ARTICLES")
             cursor.executemany("INSERT INTO articles(client, topic, text, status) VALUES(?,?,?,?)", data)
 
+class Textery():
+    def __init__(self, wig):
+        self.place=wig
+        self.list_button_info=[]
+        self.list_button=[]
+        self.wiwets=[]
+
+    def count_button(self,data:list):
+        self.list_button_info=[]
+        for i in data:
+            zip=[]
+            for ty in i :
+                ty=str(ty)
+                if '\n' in ty:
+                    ty=ty[0:-1]
+                zip.append(ty)
+            self.list_button_info.append(zip)
+
+
+    def create_button(self,):
+        self.list_button=[]
+        for i in self.list_button_info:
+            self.create_but(i)
+
+    def create_but(self,text):
+        len_mass=0
+        if len(text[3])>10:
+            len_mass=10
+        else:
+            len_mass=len(text[3])
+        but = Button(text=f"{text[0]} {text[1]} {text[2]}-{text[3][0:len_mass]}", command=lambda: self.put_text(text))
+        self.list_button.append(but)
+
+    def put_button(self,):
+        self.del_wiget()
+        heighre_=len(self.list_button)*26
+        convas = Canvas(self.place,height=heighre_,width=0)
+        fremer = Frame(convas,width=0)
+        skroll = Scrollbar(convas)
+        fremer.pack(side=RIGHT, fill=BOTH, expand=1)
+        convas.create_window((0, 0), window=fremer,width=0, height=heighre_, anchor=N + W)
+        self.wiwets.extend([convas,skroll,fremer])
+        for i in self.list_button:
+            i.pack(in_=fremer,side=TOP,expand=1)
+        skroll.config(command=convas.yview)
+        skroll.pack(side=RIGHT,fill=Y,)
+        convas.config(yscrollcommand=skroll.set, scrollregion=(0, 0, 0, heighre_), )
+        convas.pack(side=LEFT,fill=BOTH,expand=1)
+
+
+    def del_wiget(self):
+        for i in self.wiwets:
+            i.pack_forget()
+
+    def put_text(self,text):
+        self.del_wiget()
+        frame_but = Frame(self.place)
+        but_back=Button(frame_but,text="Назад",command=lambda:self.put_button())
+        chec_statys=Button(frame_but,text="Выполнено")
+        tex_teria=Text(self.place,width=0)
+        tex_teria.insert(1.0, f"Заявитель-{text[1]}\nNема-{text[2]}\nCтатус-{text[4]}\nCообщение:\n{text[3]}")
+        skrol_text=Scrollbar(self.place,command=tex_teria.yview)
+        tex_teria.config(yscrollcommand=skrol_text.set)
+        self.wiwets.extend((frame_but,but_back,chec_statys,tex_teria,skrol_text))
+        but_back.pack(side=LEFT)
+        chec_statys.pack(side=RIGHT)
+        frame_but.pack(side=TOP)
+        tex_teria.pack(side=LEFT,fill=BOTH,expand=1)
+        skrol_text.pack(side=RIGHT,fill=Y)
+
+
+
+
 
 
 
@@ -116,22 +189,8 @@ def kalendwr(a: list[int]) -> list[str]:
     return b
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def chenge_wiget_info(wig,data):
+    wig.config(value=data)
 
 
 
