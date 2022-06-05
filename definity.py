@@ -99,14 +99,32 @@ class work_sql():
             cursor.execute("SELECT *FROM ARTICLES")
             cursor.executemany("INSERT INTO articles(client, topic, text, status) VALUES(?,?,?,?)", data)
 
+    def update_info(self,data):
+        with sqlite3.connect(self.path) as content:
+            cursos=content.cursor()
+            cursos.execute("SELECT id  FROM articles")
+            cursos.execute("UPDATE  articles  SET status = 'Исполнено' WHERE id = (?)",[data[0]])
+
+
+
 class Textery():
-    def __init__(self, wig):
+    """
+    Класс отвечает за вкладку 'посмотреть заявки' и создает конвас со списоком кнопок заявок ,а также текстовое поле для
+    каждой заявки.Размещает эти полотна на экране меняя их между собой.
+    """
+    def __init__(self, wig,sql):
         self.place=wig
+        self.sql=sql
         self.list_button_info=[]
         self.list_button=[]
         self.wiwets=[]
 
     def count_button(self,data:list):
+        """
+        Из полученных данных формирует информацию для будующих кнопок.
+        :param data: данные из sql таблици
+        :return:
+        """
         self.list_button_info=[]
         for i in data:
             zip=[]
@@ -119,12 +137,20 @@ class Textery():
 
 
     def create_button(self,):
+        """
+        Перебирает инфу для кнопок и запускает функцию создания кнопки
+        :return:
+        """
         self.list_button=[]
         for i in self.list_button_info:
             self.create_but(i)
 
     def create_but(self,text):
-        len_mass=0
+        """
+        создают кнопку и функцию к ней прекрепляет, ложет ее в список
+        :param text:
+        :return:
+        """
         if len(text[3])>10:
             len_mass=10
         else:
@@ -133,6 +159,10 @@ class Textery():
         self.list_button.append(but)
 
     def put_button(self,):
+        """
+        расставляет кнопки на экране
+        :return:
+        """
         self.del_wiget()
         heighre_=len(self.list_button)*26
         convas = Canvas(self.place,height=heighre_,width=0)
@@ -142,7 +172,7 @@ class Textery():
         convas.create_window((0, 0), window=fremer,width=0, height=heighre_, anchor=N + W)
         self.wiwets.extend([convas,skroll,fremer])
         for i in self.list_button:
-            i.pack(in_=fremer,side=TOP,expand=1)
+            i.pack(in_=fremer,side=TOP,fill=BOTH,expand=1)
         skroll.config(command=convas.yview)
         skroll.pack(side=RIGHT,fill=Y,)
         convas.config(yscrollcommand=skroll.set, scrollregion=(0, 0, 0, heighre_), )
@@ -150,16 +180,25 @@ class Textery():
 
 
     def del_wiget(self):
+        """
+        отчищает список виджетов
+        :return:
+        """
         for i in self.wiwets:
             i.pack_forget()
 
     def put_text(self,text):
+        """
+        формерует и размещает текст и текстовое поле на экране
+        :param text:
+        :return:
+        """
         self.del_wiget()
         frame_but = Frame(self.place)
         but_back=Button(frame_but,text="Назад",command=lambda:self.put_button())
-        chec_statys=Button(frame_but,text="Выполнено")
+        chec_statys=Button(frame_but,text="Выполнено",command=lambda:self.update_status(text))
         tex_teria=Text(self.place,width=0)
-        tex_teria.insert(1.0, f"Заявитель-{text[1]}\nNема-{text[2]}\nCтатус-{text[4]}\nCообщение:\n{text[3]}")
+        tex_teria.insert(1.0, f"Заявитель-{text[1]}\nТема-{text[2]}\nCтатус-{text[4]}\nCообщение:\n{text[3]}")
         skrol_text=Scrollbar(self.place,command=tex_teria.yview)
         tex_teria.config(yscrollcommand=skrol_text.set)
         self.wiwets.extend((frame_but,but_back,chec_statys,tex_teria,skrol_text))
@@ -168,6 +207,17 @@ class Textery():
         frame_but.pack(side=TOP)
         tex_teria.pack(side=LEFT,fill=BOTH,expand=1)
         skrol_text.pack(side=RIGHT,fill=Y)
+
+    def update_status(self,data) :
+        """
+        обновляет статус заказа в таблице и для кнопок
+        :param data:
+        :return:
+        """
+        self.sql.update_info(data)
+        self.create_button()
+        data[4]="Исполнено"
+        self.put_text(data)
 
 
 

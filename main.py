@@ -95,7 +95,7 @@ frame_tab2=Frame(tab2)
 
 frame_text_oders=Frame(frame_tab2,)
 #text_oders=Text(frame_text_oders,)
-buttib=definity.Textery(frame_text_oders)
+buttib=definity.Textery(frame_text_oders,sql_table)
 buttib.count_button(sql_table.print_table())
 buttib.create_button()
 buttib.put_button()
