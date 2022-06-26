@@ -11,7 +11,7 @@ sys.stdout.encoding  # 'UTF-8'
 import sqlite3
 
 class info_to_enter():
-    """класс занимается приветствием пользователя и получением его именя если оно не известно
+    """класс занимается приветствием пользователя и получением его имени если оно не известно
 
     """
     def __init__(self,wig):
@@ -28,6 +28,7 @@ class info_to_enter():
         если имени нет, то создает виджеты для получения имени
         :return:
         """
+
         self.list_wiget=[]
         text_info = Text(width=10, height=1, bg="white", fg="black")
         klient_name = Button(text="Установить",command= lambda:self.know_name())
@@ -310,28 +311,13 @@ def kalendwr(a: list[int]) -> list[str]:
         b.append(i)
     return b
 
-
-def chenge_wiget_info(wig,data):
-    wig.config(value=data)
-
-
-
 def return_topic(sql):
     ret_list=[]
     for i in sql:
         ret_list.append(i[2])
     return ret_list
 
-def return_info_in_sql(topic,sql,wig):
-    text=""
-    for i in sql:
-        if topic in i:
-            text=f"клиент- {i[1]}\nстатус- {i[4]} \nОписание проблемы:\n{i[3]}"
-        else:
-            if not text:
-                text = ""
-    wig.delete(1.0, END)
-    wig.insert(1.0,text)
+
 
 
 
