@@ -63,11 +63,11 @@ class Win(tkinter.Tk):
             self.data_frame.pack(side=LEFT,expand=1,fill=BOTH )
             self.date_label.pack(side=TOP, ipadx=10)
             self.date_now.pack(side=TOP, ipadx=10)
-            self.frame_text.pack(expand=1, fill=BOTH, side=LEFT, )
+            self.frame_text.pack(expand=1, fill=BOTH, side=LEFT,ipady=90 )
             self.text_enter.pack(in_=self.frame_text, anchor=NW, expand=1, fill=BOTH, side=LEFT, )
-            self.text_enter_themm.pack(anchor=N, expand=1, fill=X, side=BOTTOM)
+            self.text_enter_themm.pack(anchor=N, expand=1, fill=X, side=BOTTOM,)
             self.batton_send_info.pack(side=LEFT)
-            self.scrol_text.pack(in_=self.frame_text, anchor=NE, fill=Y, side=RIGHT)
+            self.scrol_text.pack(in_=self.frame_text, anchor=NE, fill=Y, side=RIGHT,)
 
 
 
@@ -116,7 +116,7 @@ class Win(tkinter.Tk):
             :param list:  список паролей
             :return:
             """
-
+            print(list)
             if len(list[0].get())<8 or len(list[1].get())<8:
                 list[0].delete(0,END)
                 list[1].delete(0, END)
@@ -129,7 +129,9 @@ class Win(tkinter.Tk):
                 else:
                     list[0].delete(0, END)
                     list[1].delete(0, END)
+                    self.name=list[2].get()
                     print("good,go to...")
+                    self.know_name()
 
 
 
@@ -139,6 +141,9 @@ class Win(tkinter.Tk):
                     опредиляет сохранено имя в файле, если да то дает лабел с именем на табло, иначе запускает скрипт
                     получения имени
             """
+
+
+
             try:
                 with open(self.info_json, "r") as read_file:
                     info1 = json.load(read_file)
@@ -147,8 +152,63 @@ class Win(tkinter.Tk):
                     text = Label(text=self.name)
                     text.pack(in_=self.frame_info, side=LEFT, ipadx=10)
 
+
             except:
                 self.no_name()
+
+
+        def hi_client(self):
+            self.destry_widget()
+            self.list_wiget = []
+            frame_enter_all = Frame(self.frame_info)
+            frame_enter=Frame(frame_enter_all,bg="red")
+
+            hi_client=Label(text="Войдите или зарегистрируйтесь",bg="yellow")
+            button_enter=Button(text="Войти",command=lambda: self.enter_programm(),height=1)
+            button_reg=Button(text="Регистрация",command=lambda: self.no_name(),height=1)
+            frame_enter_all.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
+            hi_client.pack(in_=frame_enter_all, side=TOP,expand=1, fill=BOTH, padx=10, pady=2)
+            frame_enter.pack(side=TOP, expand=1, fill=BOTH, padx=10, pady=2)
+
+            button_reg.pack(in_=frame_enter,anchor=CENTER)
+            button_enter.pack(in_=frame_enter,anchor=CENTER)
+
+            self.list_wiget.extend((frame_enter_all,frame_enter,hi_client,button_enter,button_reg))
+
+
+
+        def enter_programm(self):
+            self.destry_widget()
+            self.list_wiget = []
+            klient = Label(text="Имя клиента", anchor=W)
+            text_klient = Entry(width=10, bg="white", fg="black")
+            klient_name = Button(text="Войти", height=1, )
+            klient_pass_l = Label(text="Пароль", anchor=W)
+            text_klient_pass_l = Entry(width=10, show="*", bg="white", fg="black")
+            pass_pass=Label(width=1,height=1, anchor=W)
+
+            frame_lable = Frame(self.frame_info)
+            frame_text = Frame(self.frame_info)
+            button_exit = Button(text="Назад",command=lambda: self.hi_client(),height=1, )
+            button_pass_show = Button(text="Показать", command=lambda: self.show_pass((text_klient_pass_l,)), height=1, )
+            frame_lable.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
+            frame_text.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
+            # 1
+            klient.pack(in_=frame_lable, side=TOP, expand=1, fill=BOTH, padx=10, pady=1)
+            klient_pass_l.pack(in_=frame_lable, side=TOP, expand=1, fill=BOTH, padx=10, pady=1)
+            klient_name.pack(in_=frame_lable, side=TOP, expand=1, fill=X, padx=10, pady=1)
+            button_exit.pack(in_=frame_lable, side=TOP, expand=1, fill=X, anchor=NW, padx=10, pady=2)
+
+            # 2
+            text_klient.pack(in_=frame_text, side=TOP, expand=1, fill=BOTH, anchor=NW, padx=10, pady=2)
+            text_klient_pass_l.pack(in_=frame_text, side=TOP, expand=1, fill=BOTH, anchor=NW, padx=10, pady=2)
+            button_pass_show.pack(in_=frame_text, side=TOP, expand=1, fill=X, anchor=NW, padx=10, pady=2)
+            pass_pass.pack(in_=frame_text, side=TOP, expand=1, fill=BOTH, padx=10, pady=1)
+            self.list_wiget.extend(( frame_lable, frame_text, klient,
+                                    text_klient, klient_name, klient_pass_l,
+                                    button_exit ,button_pass_show))
+
+
 
 
         def no_name(self, ):
@@ -156,22 +216,30 @@ class Win(tkinter.Tk):
             если не авторизирован, то создает виджеты для получения имени и пароля
             :return:
             """
-
+            self.destry_widget()
             self.list_wiget = []
+            print(self.list_wiget)
             klient = Label( text="Имя клиента",anchor=W)
-            text_klient = Entry(width=10,  bg="white", fg="black")
+            text_klient = Entry(width=30,  bg="white", fg="black")
             klient_name = Button(text="Регистрация",height=1, command=lambda: self.compare_pass((text_klient_pass_l,
-                                                                                         text_klient_pass_rep_l)))
+                                                                                         text_klient_pass_rep_l,text_klient)))
             klient_pass_l = Label( text="Пароль",anchor=W)
-            text_klient_pass_l=Entry(width=10 , show="*", bg="white", fg="black")
+            text_klient_pass_l=Entry(width=30 , show="*", bg="white", fg="black")
             klient_pass_rep_l = Label( text="Пароль повтор",anchor=W)
-            text_klient_pass_rep_l=Entry(width=10, show="*", bg="white", fg="black")
-            frame_lable=Frame(self.frame_info)
-            frame_text=Frame(self.frame_info)
-            button_pass=Button(text="Показать",height=1, command=lambda: self.show_pass((text_klient_pass_l,
-                                                                                         text_klient_pass_rep_l)))
+            text_klient_pass_rep_l=Entry(width=30, show="*", bg="white", fg="black")
+            button_pass = Button(text="Показать", height=1, command=lambda: self.show_pass((text_klient_pass_l,
+                                                                                            text_klient_pass_rep_l)))
+            button_back_of=Button(text="Назад",command=lambda:self.hi_client(),height=1)
+
+            frame_bottom = Frame(self.frame_info)
+            frame_lable=Frame(frame_bottom)
+            frame_text=Frame(frame_bottom)
+            frame_back_of=Frame(self.frame_info)
+
+            frame_bottom.pack(side=TOP,expand=1,fill=X,  padx=10,pady=2)
             frame_lable.pack(side=LEFT,expand=1,fill=BOTH,   padx=10,pady=2)
             frame_text.pack(side=LEFT,expand=1,fill=BOTH,  padx=10,pady=2)
+            frame_back_of.pack(side=TOP,expand=1,fill=BOTH,  padx=10,pady=2)
             #1
             klient.pack(in_=frame_lable,side=TOP,expand=1,fill=BOTH,  padx=10,pady=1)
             klient_pass_l.pack(in_=frame_lable,side=TOP,expand=1,fill=BOTH, padx=10,pady=1)
@@ -181,8 +249,9 @@ class Win(tkinter.Tk):
             text_klient.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
             text_klient_pass_l.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
             text_klient_pass_rep_l.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
-            button_pass.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
-            self.list_wiget.extend((frame_lable,frame_text,klient,text_klient,klient_name,klient_pass_l,
+            button_pass.pack(in_=frame_text, side=TOP,expand=1,fill=X, anchor=NW, padx=10,pady=2)
+            button_back_of.pack(in_=frame_back_of, side=TOP,expand=1,fill=X, anchor=NW, padx=10,pady=2)
+            self.list_wiget.extend((button_back_of,frame_back_of,frame_bottom,frame_lable,frame_text,klient,text_klient,klient_name,klient_pass_l,
                                     klient_pass_rep_l,button_pass,text_klient_pass_l,text_klient_pass_rep_l))
 
 
@@ -198,21 +267,17 @@ class Win(tkinter.Tk):
             except:
                 pass
 
-        def know_name(self, ):
+        def destry_widget(self, ):
             """
-            когда имя введино(нажата кнопка), получает значение поля и удаляет старые виджеты
-            :return:
+
             """
             for i in self.list_wiget:
-                if i.winfo_class() == "Text":
-                    self.name = i.get(1.0, END)[0:-1]
                 i.destroy()
-            text = Label(text=self.name)
-            text.pack(in_=self.frame_info, side=LEFT, ipadx=10)
-            self.runame()
+
 
         def get_name(self):
             return self.name
+
 #функции sql
         def create_bd(self):
             """
@@ -460,7 +525,7 @@ winner=Win()
 winner.set_parametrs()
 winner.pack_widgets()
 winner.create_bd()
-winner.meet_user()
+winner.hi_client()
 cot=threading.Thread(target=winner.call_of_admin,daemon = True)
 cot.start()
 winner.mainloop()
