@@ -7,6 +7,7 @@ import json
 import sqlite3
 import threading
 import time
+import db_class
 
 
 
@@ -19,6 +20,8 @@ class Win(tkinter.Tk):
             self.path_to_db ="base_data/sik.db"
             self.list_wiget = []#self.tab1,
             self.admin = "user"
+            self.user_db=db_class.Users(db_class.cursor)
+            self.enter_accept=False
 
             #боксы
             #первая вкладка
@@ -127,34 +130,62 @@ class Win(tkinter.Tk):
                     list[1].delete(0, END)
                     massege.showerror("Внимание","Пароли не совпадают")
                 else:
+                    print("good,go to...", list[2].get(), list[1].get())
+                    login=list[2].get()
+                    password=list[1].get()
                     list[0].delete(0, END)
                     list[1].delete(0, END)
                     self.name=list[2].get()
-                    print("good,go to...")
-                    self.know_name()
+                    try:
+                        self.user_db.write_db(login, password)
+                        massege.showerror("Успех",f"{self.name} регистрация успешна")
+                        self.enter_accept=True
+                        self.name=self.name
+                        self.enter_access()
+                    except:
+
+                        massege.showerror("Ошибка", f"{self.name} регистрация ощибка")
+
+                    #self.know_name()
 
 
 
 
-        def meet_user(self):
+        def meet_user(self,login,password):
             """
-                    опредиляет сохранено имя в файле, если да то дает лабел с именем на табло, иначе запускает скрипт
-                    получения имени
+
             """
+            login_new=login.get()
+            password_new=password.get()
 
 
 
             try:
-                with open(self.info_json, "r") as read_file:
-                    info1 = json.load(read_file)
-                    self.name = info1["name_competer"]
-                    self.path = info1["path"]
-                    text = Label(text=self.name)
-                    text.pack(in_=self.frame_info, side=LEFT, ipadx=10)
+                if not self.user_db.enter_programm(login_new,password_new):
+                    massege.showerror("Ошибка","ошибка")
+                    password.delete(0, END)
+                else:
+                    massege.showerror("Вход", f"{login_new} привет")
+                    self.name=login_new
+                    self.enter_accept=True
+                    self.enter_access()
 
 
             except:
-                self.no_name()
+                massege.showerror("Ошибка", "Ошибка в базе данных")
+                pass
+
+        def enter_access(self):
+
+            self.destry_widget()
+            self.list_wiget = []
+            frame_name=Frame(self.frame_info)
+            label_name=Label(text=f"Пользователь-\n{self.name} ")
+            frame_name.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
+            label_name.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
+            self.list_wiget.extend((frame_name,label_name))
+
+
 
 
         def hi_client(self):
@@ -182,7 +213,7 @@ class Win(tkinter.Tk):
             self.list_wiget = []
             klient = Label(text="Имя клиента", anchor=W)
             text_klient = Entry(width=10, bg="white", fg="black")
-            klient_name = Button(text="Войти", height=1, )
+            klient_name = Button(text="Войти",command=lambda :self.meet_user(text_klient,text_klient_pass_l),height=1, )
             klient_pass_l = Label(text="Пароль", anchor=W)
             text_klient_pass_l = Entry(width=10, show="*", bg="white", fg="black")
             pass_pass=Label(width=1,height=1, anchor=W)
@@ -439,19 +470,51 @@ class Win(tkinter.Tk):
             :return:
             """
             self.del_wiget()
+            self.list_wiget=[]
             heighre_ = len(self.list_button) * 26
-            convas = Canvas(self.frame_text_oders, height=heighre_, width=0)
+            mane_frame=Frame(self.frame_text_oders,)
+            convas = Canvas(mane_frame,bg="gray")
             fremer = Frame(convas, width=0)
             skroll = Scrollbar(convas)
+            frame_sarch=Frame(self.frame_text_oders, )
+            days = list(range(32))
+            months=list(range(13))
+            years=list(range(2021,2099))
+            sarch_button=Button(text="Sarch")
             fremer.pack(side=RIGHT, fill=BOTH, expand=1)
             convas.create_window((0, 0), window=fremer, width=0, height=heighre_, anchor=N + W)
             self.wiwets.extend([convas, skroll, fremer])
             for i in self.list_button:
-                i.pack(in_=fremer, side=TOP, fill=BOTH, expand=1)
+                i.pack(in_=fremer, side=TOP, fill=BOTH, expand=1,)
+                self.wiwets.append(i)
             skroll.config(command=convas.yview)
             skroll.pack(side=RIGHT, fill=Y, )
             convas.config(yscrollcommand=skroll.set, scrollregion=(0, 0, 0, heighre_), )
             convas.pack(side=LEFT, fill=BOTH, expand=1)
+            sarch_button.grid(in_=frame_sarch,row=1,column=4)
+            row=0
+            column=1
+            for i in self.create_wigets("Combobox",6,(days,days,months,months,years,years)):
+                if column==3:
+                    row+=1
+                    column = 1
+                i.grid(in_=frame_sarch,row=row,column=column,)
+                self.wiwets.append(i)
+                column+=1
+            row = 0
+            column = 0
+            for i in  self.create_wigets("lable",6,("from days","from months","from years","to days"," to months",
+                                                    "to years")):
+                if row==3:
+                    row=0
+                    column = 3
+                i.grid(in_=frame_sarch,row=row,column=column,)
+                self.wiwets.append(i)
+                row+=1
+
+            frame_sarch.pack()
+            mane_frame.pack(side=LEFT, fill=BOTH, expand=1)
+            self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame))
 
         def del_wiget(self):
             """
@@ -460,6 +523,20 @@ class Win(tkinter.Tk):
             """
             for i in self.wiwets:
                 i.pack_forget()
+                i.grid_forget()
+
+        def create_wigets(self,types,amount,args):
+            return_wigets=[]
+            count = 0
+            if types=="Combobox":
+                for i in range(amount):
+                    return_wigets.append(ttk.Combobox(values=args[count]))
+                    count+=1
+            if types=="lable":
+                for i in range(amount):
+                    return_wigets.append(Label(text=args[count]))
+                    count+=1
+            return return_wigets
 
         def put_text(self, text):
             """
@@ -524,7 +601,7 @@ class Win(tkinter.Tk):
 winner=Win()
 winner.set_parametrs()
 winner.pack_widgets()
-winner.create_bd()
+winner.user_db.create_table()
 winner.hi_client()
 cot=threading.Thread(target=winner.call_of_admin,daemon = True)
 cot.start()
