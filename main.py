@@ -22,6 +22,7 @@ class Win(tkinter.Tk):
             self.admin = "user"
             self.user_db=db_class.Users(db_class.cursor)
             self.enter_accept=False
+            self.sarch_combobox={}
 
             #боксы
             #первая вкладка
@@ -51,6 +52,7 @@ class Win(tkinter.Tk):
 
 
         def set_parametrs(self):
+
             self.title("Программа оформления заявок")
             self.geometry(f"{660}x{500}")
             self.tabControl.add(self.tab1, text='Составить заявку')
@@ -61,6 +63,7 @@ class Win(tkinter.Tk):
             self.tabControl.bind('<Button-1>', lambda e: self.click_to_notebook())
 
         def pack_widgets(self):
+
             self.frame_info.pack(anchor=W,expand=1,fill=BOTH,)
             self.frame_sent.pack(anchor=W, pady=2, expand=0, fill=X)
             self.data_frame.pack(side=LEFT,expand=1,fill=BOTH )
@@ -477,10 +480,10 @@ class Win(tkinter.Tk):
             fremer = Frame(convas, width=0)
             skroll = Scrollbar(convas)
             frame_sarch=Frame(self.frame_text_oders, )
-            days = list(range(32))
-            months=list(range(13))
+            days = list(range(1,32))
+            months=list(range(1,13))
             years=list(range(2021,2099))
-            sarch_button=Button(text="Sarch")
+            sarch_button=Button(text="Sarch",command=lambda :self.get_info_sarch())
             fremer.pack(side=RIGHT, fill=BOTH, expand=1)
             convas.create_window((0, 0), window=fremer, width=0, height=heighre_, anchor=N + W)
             self.wiwets.extend([convas, skroll, fremer])
@@ -494,7 +497,9 @@ class Win(tkinter.Tk):
             sarch_button.grid(in_=frame_sarch,row=1,column=4)
             row=0
             column=1
-            for i in self.create_wigets("Combobox",6,(days,days,months,months,years,years)):
+            list_box=self.create_wigets("Combobox",6,(days,days,months,months,years,years),())
+            self.wreate_sarch_combobox(list_box)
+            for i in list_box:
                 if column==3:
                     row+=1
                     column = 1
@@ -504,17 +509,23 @@ class Win(tkinter.Tk):
             row = 0
             column = 0
             for i in  self.create_wigets("lable",6,("from days","from months","from years","to days"," to months",
-                                                    "to years")):
+                                                    "to years"),()):
                 if row==3:
                     row=0
                     column = 3
                 i.grid(in_=frame_sarch,row=row,column=column,)
                 self.wiwets.append(i)
                 row+=1
-
             frame_sarch.pack()
             mane_frame.pack(side=LEFT, fill=BOTH, expand=1)
             self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame))
+
+        def wreate_sarch_combobox(self,list):
+            count=0
+            for i in list:
+                self.sarch_combobox[count]=i.winfo_id()
+                count+=1
+
 
         def del_wiget(self):
             """
@@ -525,7 +536,28 @@ class Win(tkinter.Tk):
                 i.pack_forget()
                 i.grid_forget()
 
-        def create_wigets(self,types,amount,args):
+        def get_info_sarch(self):
+            names=("last_day","next_day","last_month","next_month","last_year","next_year")
+            sarch_combobox_get={}
+            count=0
+            for i in names:
+                for g in self.wiwets:
+                    if g.winfo_id()==self.sarch_combobox[count]:
+                        sarch_combobox_get[i]=g.get()
+                count+=1
+
+
+            print(sarch_combobox_get)
+            return sarch_combobox_get
+
+
+
+
+
+
+
+        def create_wigets(self,types,amount,args,funk):
+
             return_wigets=[]
             count = 0
             if types=="Combobox":
@@ -536,6 +568,8 @@ class Win(tkinter.Tk):
                 for i in range(amount):
                     return_wigets.append(Label(text=args[count]))
                     count+=1
+            if types=="Button":
+                pass
             return return_wigets
 
         def put_text(self, text):
