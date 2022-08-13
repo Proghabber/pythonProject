@@ -16,13 +16,16 @@ class Win(tkinter.Tk):
             super().__init__()
             self.info_json="base_data/info.json"
             self.name ="name_competer"
+            self.pass_=""
             self.password=""
             self.path_to_db ="base_data/sik.db"
             self.list_wiget = []#self.tab1,
             self.admin = "user"
             self.user_db=db_class.Users(db_class.cursor)
+            self.oders_db=db_class.Orders(db_class.cursor)
             self.enter_accept=False
             self.sarch_combobox={}
+            self.pass_checked=IntVar()
 
             #боксы
             #первая вкладка
@@ -122,7 +125,7 @@ class Win(tkinter.Tk):
             :param list:  список паролей
             :return:
             """
-            print(list)
+
             if len(list[0].get())<8 or len(list[1].get())<8:
                 list[0].delete(0,END)
                 list[1].delete(0, END)
@@ -133,21 +136,23 @@ class Win(tkinter.Tk):
                     list[1].delete(0, END)
                     massege.showerror("Внимание","Пароли не совпадают")
                 else:
-                    print("good,go to...", list[2].get(), list[1].get())
                     login=list[2].get()
                     password=list[1].get()
                     list[0].delete(0, END)
                     list[1].delete(0, END)
-                    self.name=list[2].get()
                     try:
                         self.user_db.write_db(login, password)
-                        massege.showerror("Успех",f"{self.name} регистрация успешна")
                         self.enter_accept=True
-                        self.name=self.name
+                        self.name=login
+                        if self.pass_checked.get()==1:
+                            self.pass_ = password
                         self.enter_access()
+                        massege.showerror("Успех", f"{self.name} регистрация успешна")
+                        self.runame()
+
                     except:
 
-                        massege.showerror("Ошибка", f"{self.name} регистрация ощибка")
+                        massege.showerror("Ошибка", f"{self.name} регистрация ошибка")
 
                     #self.know_name()
 
@@ -160,9 +165,6 @@ class Win(tkinter.Tk):
             """
             login_new=login.get()
             password_new=password.get()
-
-
-
             try:
                 if not self.user_db.enter_programm(login_new,password_new):
                     massege.showerror("Ошибка","ошибка")
@@ -174,14 +176,14 @@ class Win(tkinter.Tk):
                     self.enter_access()
 
 
+
             except:
                 massege.showerror("Ошибка", "Ошибка в базе данных")
                 pass
 
         def enter_access(self):
 
-            self.destry_widget()
-            self.list_wiget = []
+            self.del_wiget(self.list_wiget)
             frame_name=Frame(self.frame_info)
             label_name=Label(text=f"Пользователь-\n{self.name} ")
             frame_name.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
@@ -192,8 +194,8 @@ class Win(tkinter.Tk):
 
 
         def hi_client(self):
-            self.destry_widget()
-            self.list_wiget = []
+            self.del_wiget(self.list_wiget)
+
             frame_enter_all = Frame(self.frame_info)
             frame_enter=Frame(frame_enter_all,bg="red")
 
@@ -212,8 +214,8 @@ class Win(tkinter.Tk):
 
 
         def enter_programm(self):
-            self.destry_widget()
-            self.list_wiget = []
+
+            self.del_wiget(self.list_wiget)
             klient = Label(text="Имя клиента", anchor=W)
             text_klient = Entry(width=10, bg="white", fg="black")
             klient_name = Button(text="Войти",command=lambda :self.meet_user(text_klient,text_klient_pass_l),height=1, )
@@ -240,7 +242,7 @@ class Win(tkinter.Tk):
             pass_pass.pack(in_=frame_text, side=TOP, expand=1, fill=BOTH, padx=10, pady=1)
             self.list_wiget.extend(( frame_lable, frame_text, klient,
                                     text_klient, klient_name, klient_pass_l,
-                                    button_exit ,button_pass_show))
+                                    button_exit ,button_pass_show,text_klient_pass_l,pass_pass))
 
 
 
@@ -250,9 +252,7 @@ class Win(tkinter.Tk):
             если не авторизирован, то создает виджеты для получения имени и пароля
             :return:
             """
-            self.destry_widget()
-            self.list_wiget = []
-            print(self.list_wiget)
+            self.del_wiget(self.list_wiget)
             klient = Label( text="Имя клиента",anchor=W)
             text_klient = Entry(width=30,  bg="white", fg="black")
             klient_name = Button(text="Регистрация",height=1, command=lambda: self.compare_pass((text_klient_pass_l,
@@ -260,10 +260,12 @@ class Win(tkinter.Tk):
             klient_pass_l = Label( text="Пароль",anchor=W)
             text_klient_pass_l=Entry(width=30 , show="*", bg="white", fg="black")
             klient_pass_rep_l = Label( text="Пароль повтор",anchor=W)
+
             text_klient_pass_rep_l=Entry(width=30, show="*", bg="white", fg="black")
             button_pass = Button(text="Показать", height=1, command=lambda: self.show_pass((text_klient_pass_l,
                                                                                             text_klient_pass_rep_l)))
             button_back_of=Button(text="Назад",command=lambda:self.hi_client(),height=1)
+            check_pass=Checkbutton(text="Сохранить пароль",variable=self.pass_checked,)
 
             frame_bottom = Frame(self.frame_info)
             frame_lable=Frame(frame_bottom)
@@ -284,8 +286,11 @@ class Win(tkinter.Tk):
             text_klient_pass_l.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
             text_klient_pass_rep_l.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
             button_pass.pack(in_=frame_text, side=TOP,expand=1,fill=X, anchor=NW, padx=10,pady=2)
-            button_back_of.pack(in_=frame_back_of, side=TOP,expand=1,fill=X, anchor=NW, padx=10,pady=2)
-            self.list_wiget.extend((button_back_of,frame_back_of,frame_bottom,frame_lable,frame_text,klient,text_klient,klient_name,klient_pass_l,
+            button_back_of.pack(in_=frame_back_of, side=LEFT,expand=1,fill=X, anchor=NW, padx=2,pady=2)
+            check_pass.pack(in_=frame_back_of, side=LEFT, padx=2,pady=2)
+
+
+            self.list_wiget.extend((check_pass,button_back_of,frame_back_of,frame_bottom,frame_lable,frame_text,klient,text_klient,klient_name,klient_pass_l,
                                     klient_pass_rep_l,button_pass,text_klient_pass_l,text_klient_pass_rep_l))
 
 
@@ -294,19 +299,14 @@ class Win(tkinter.Tk):
             записывает полученое имя в json файл
             :return:
             """
-            info = {"name_competer": self.name, "path": self.path_to_db}
+            info = {"name_competer": self.name,"pass": self.pass_, "path": self.path_to_db}
             try:
                 with open(self.info_json, "w") as write_file:
                     json.dump(info, write_file, ensure_ascii=False)
             except:
                 pass
 
-        def destry_widget(self, ):
-            """
 
-            """
-            for i in self.list_wiget:
-                i.destroy()
 
 
         def get_name(self):
@@ -367,23 +367,12 @@ class Win(tkinter.Tk):
             записывает данные в бд
             :return:
             """
-
-            data=self.collect_info()
-            data = self.clear_inter(data)
-            with sqlite3.connect(self.path_to_db) as content:
-                cursor = content.cursor()
-                cursor.execute("SELECT *FROM 'self.name'")
-                if data[0][1] != "трипер":
-                    self.admin = "user"
-                    if data[0][0] != "":
-                        cursor.executemany("INSERT INTO 'self.name'(client, topic, text, status) VALUES(?,?,?,?)", data)
-                        massege.showerror("Отправка", "Заявка отправлена")
-
-                    else:
-                        massege.showerror("Oшибка", "Авторизируйтесь чтобы отправить заявку")
-                else:
-                    self.admin = "admin"
-                    massege.showerror("Внимание", "Вы получили права админа")
+            if self.enter_accept==True:
+                data=self.collect_info()
+                self.oders_db.write_order(data[1],data[2],data[0])
+                massege.showerror("Успех","Заявка отправлена")
+            else:
+                massege.showerror("Ошибка","Для отправки сообщения авторизируйтесь")
 
 
 
@@ -409,9 +398,9 @@ class Win(tkinter.Tk):
             """
             name=self.name
             themm=self.text_enter_themm.get(1.0, END)
-            text=self.text_enter_themm.get(1.0, END)
-            status="Актуально"
-            return ([(name,themm,text,status)])
+            text=self.text_enter.get(1.0, END)
+            data = self.clear_inter([(name,themm,text,)])
+            return data[0]
 #функции для вкладки "показать заявки"
 
         def count_button(self,  ):
@@ -420,7 +409,8 @@ class Win(tkinter.Tk):
             :param data: данные из sql таблици
             :return:
             """
-            data=self.print_table()
+            print(type(self.name))
+            data=self.oders_db.return_info(self.name)
 
             self.list_button_info = []
             name_computer = ""
@@ -469,11 +459,14 @@ class Win(tkinter.Tk):
 
         def put_button(self, ):
             """
-            расставляет кнопки на экране
+            расставляет всджеты на второй вкладке
             :return:
             """
-            self.del_wiget()
-            self.list_wiget=[]
+            self.sarch_combobox = {}
+            print(len(self.wiwets))
+            self.del_wiget(self.wiwets)
+            self.wiwets = []
+            print(len(self.wiwets))
             heighre_ = len(self.list_button) * 26
             mane_frame=Frame(self.frame_text_oders,)
             convas = Canvas(mane_frame,bg="gray")
@@ -498,6 +491,8 @@ class Win(tkinter.Tk):
             row=0
             column=1
             list_box=self.create_wigets("Combobox",6,(days,days,months,months,years,years),())
+            sarch_word = self.create_wigets("Entery", 1, (), ())[0]
+            list_box.append(sarch_word)
             self.wreate_sarch_combobox(list_box)
             for i in list_box:
                 if column==3:
@@ -509,35 +504,49 @@ class Win(tkinter.Tk):
             row = 0
             column = 0
             for i in  self.create_wigets("lable",6,("from days","from months","from years","to days"," to months",
-                                                    "to years"),()):
+                                                 "to years"),()):
                 if row==3:
                     row=0
                     column = 3
                 i.grid(in_=frame_sarch,row=row,column=column,)
                 self.wiwets.append(i)
                 row+=1
+            sarch_word_l=self.create_wigets("lable",1,("Word",),())[0]
+            sarch_word.grid(in_=frame_sarch,row=4,column=1,)
+            sarch_word_l.grid(in_=frame_sarch,row=4,column=0,)
             frame_sarch.pack()
             mane_frame.pack(side=LEFT, fill=BOTH, expand=1)
-            self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame))
+
+            self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame,sarch_word))
 
         def wreate_sarch_combobox(self,list):
+            """
+            заполняет дикт из id жиджктов поиска заявок
+            :param list:
+            :return:
+            """
             count=0
             for i in list:
                 self.sarch_combobox[count]=i.winfo_id()
                 count+=1
 
 
-        def del_wiget(self):
+        def del_wiget(self,list):
             """
             отчищает список виджетов
             :return:
             """
-            for i in self.wiwets:
-                i.pack_forget()
-                i.grid_forget()
+            for i in list:
+                i.destroy()
+
+
 
         def get_info_sarch(self):
-            names=("last_day","next_day","last_month","next_month","last_year","next_year")
+            """
+            собирает значения combobox из поиска в словарь
+            :return:
+            """
+            names=("last_day","next_day","last_month","next_month","last_year","next_year","word")
             sarch_combobox_get={}
             count=0
             for i in names:
@@ -545,10 +554,26 @@ class Win(tkinter.Tk):
                     if g.winfo_id()==self.sarch_combobox[count]:
                         sarch_combobox_get[i]=g.get()
                 count+=1
-
-
-            print(sarch_combobox_get)
+            self.count_sarch_parametrs(sarch_combobox_get)
             return sarch_combobox_get
+
+        def count_sarch_parametrs(self,dict_):
+            last=all(list(dict_[i] for i in dict_ if "last" in i))
+            next=all(list(dict_[i] for i in dict_ if "next" in i))
+            word=all(list(dict_[i] for i in dict_ if "word" in i))
+            all_find=[last,next,word]
+            only_period=all_find[0:2]
+            strictly_date=all_find[0]
+            find=(all(all_find),all(only_period),strictly_date)
+            if all(find)==True:
+                print("ищем все")
+            elif all(only_period)==True:
+                print("ищем период")
+            elif  strictly_date==True:
+                print("ищем дату")
+
+
+
 
 
 
@@ -570,6 +595,9 @@ class Win(tkinter.Tk):
                     count+=1
             if types=="Button":
                 pass
+            if types=="Entery":
+                for i in range(amount):
+                    return_wigets.append(Entry())
             return return_wigets
 
         def put_text(self, text):
@@ -578,7 +606,9 @@ class Win(tkinter.Tk):
             :param text:
             :return:
             """
+
             self.del_wiget()
+            self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
             but_back = Button(frame_but, text="Назад", command=lambda: self.put_button())
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.update_status(text))
@@ -607,6 +637,7 @@ class Win(tkinter.Tk):
             massege.showerror("Изменение", "Заявка отмечена как 'выполенно'")
 
         def click_to_notebook(self):
+
             self.count_button()
             self.create_button()
             self.put_button()
@@ -631,11 +662,13 @@ class Win(tkinter.Tk):
 
 
 
-
+print(datetime.date(2022,10,22))
 winner=Win()
 winner.set_parametrs()
 winner.pack_widgets()
 winner.user_db.create_table()
+winner.oders_db.create_table()
+winner.oders_db.return_info_dd(0,0,0)
 winner.hi_client()
 cot=threading.Thread(target=winner.call_of_admin,daemon = True)
 cot.start()
