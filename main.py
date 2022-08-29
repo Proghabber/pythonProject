@@ -9,6 +9,40 @@ import threading
 import time
 import db_class
 
+class button_trans():
+    def __init__(self,list_):
+        super().__init__()
+        self.llst=list_
+        self.height=0
+        self.obi=frame_=Frame(height=100,width=100)
+        self.placee=""
+    def but(self):
+        if len(self.llst[3]) > 10:
+            len_mass = 10
+        else:
+            len_mass = len(text[3])
+        but = Button(text=f"{self.llst[0]} {self.llst[1]} {self.llst[2]}-{self.llst[3][0:len_mass]}",
+                     command=lambda: self.put_text(self.llst[1]))
+        self.height=but.winfo_height()
+        self.obi=but
+        return self
+
+    def farame(self):
+        frame_=Frame(height=self.height,width=100)
+        self.obi = frame_
+        return self
+
+    def place_(self,pla):
+        self.placee=pla
+        self.obi.pack(in_=self.placee,side=TOP)
+
+    def return_winfo_y(self):
+        return  self.obi.winfo_y()
+
+
+
+
+
 
 
 class Win(tkinter.Tk):
@@ -29,7 +63,7 @@ class Win(tkinter.Tk):
 
             #боксы
             #первая вкладка
-            self.tabControl = ttk.Notebook(self)
+            self.tabControl = ttk.Notebook()
             self.tab1 = ttk.Frame(self.tabControl)
             self.frame_info = Frame(self.tab1, height=20)
             self.frame_text = Frame(self.tab1)
@@ -42,9 +76,10 @@ class Win(tkinter.Tk):
             self.text_enter = Text(self.frame_text, width=0, )
             self.text_enter_themm = Text(self.frame_sent, height=1)
             self.scrol_text = Scrollbar(self.tab1, command=self.text_enter.yview)
-            self.batton_send_info = Button(self.frame_sent, text="Отправить",command=lambda  :self.write_table())
+            self.batton_send_info = Button(self.frame_sent, text="Отправить",command=lambda :self.write_table())
             #вторая вкладка
-            self.tab2 = ttk.Frame(self.tabControl)
+            self.pallat=Frame(self)
+            self.tab2 = ttk.Frame(self.tabControl,)
             self.frame_tab2 = Frame(self.tab2)
             self.frame_text_oders = Frame(self.frame_tab2, )
 
@@ -56,6 +91,7 @@ class Win(tkinter.Tk):
 
         def set_parametrs(self):
 
+
             self.title("Программа оформления заявок")
             self.geometry(f"{660}x{500}")
             self.tabControl.add(self.tab1, text='Составить заявку')
@@ -63,9 +99,11 @@ class Win(tkinter.Tk):
             self.text_enter_themm.insert(INSERT, "Тема", )
             self.text_enter.config(yscrollcommand=self.scrol_text.set)
             self.tabControl.add(self.tab2, text='Посмотреть заявки')
-            self.tabControl.bind('<Button-1>', lambda e: self.click_to_notebook())
+            self.tabControl.bind('<Button-1>', lambda e: self.click_to_notebook(self.count_parametrs()))
+            self.tab2.place()
 
         def pack_widgets(self):
+
 
             self.frame_info.pack(anchor=W,expand=1,fill=BOTH,)
             self.frame_sent.pack(anchor=W, pady=2, expand=0, fill=X)
@@ -81,12 +119,17 @@ class Win(tkinter.Tk):
 
 
             self.tab1.place()
-            self.tabControl.place(relx=0, rely=0, relwidth=1, relheight=1)
+            self.tabControl.place(in_=self,relx=0, rely=0, relwidth=1, relheight=1)
             self.frame_text_oders.pack(anchor=NW, expand=1, fill=BOTH, )
             self.frame_tab2.place(relx=0, rely=0, relwidth=1, relheight=1)
 
+
             self.tab2.place()
-            self.tabControl.place(relx=0, rely=0, relwidth=1, relheight=1)
+
+
+
+
+
 
         def kalendwr(self,a: list[int]) -> list[str]:
             """получает список интов и преобразует в список строк и если получился один знак ,то добавляет перед ним 0"""
@@ -107,6 +150,7 @@ class Win(tkinter.Tk):
             date = datetime.datetime.today()
             date_chenge = self.kalendwr([date.day, date.month, date.year])
             return date_chenge
+
 
         def show_pass(self,list):
             """
@@ -195,6 +239,7 @@ class Win(tkinter.Tk):
 
         def hi_client(self):
             self.del_wiget(self.list_wiget)
+            self.list_wiget=[]
 
             frame_enter_all = Frame(self.frame_info)
             frame_enter=Frame(frame_enter_all,bg="red")
@@ -216,6 +261,7 @@ class Win(tkinter.Tk):
         def enter_programm(self):
 
             self.del_wiget(self.list_wiget)
+            self.list_wiget=[]
             klient = Label(text="Имя клиента", anchor=W)
             text_klient = Entry(width=10, bg="white", fg="black")
             klient_name = Button(text="Войти",command=lambda :self.meet_user(text_klient,text_klient_pass_l),height=1, )
@@ -253,6 +299,7 @@ class Win(tkinter.Tk):
             :return:
             """
             self.del_wiget(self.list_wiget)
+            self.list_wiget=[]
             klient = Label( text="Имя клиента",anchor=W)
             text_klient = Entry(width=30,  bg="white", fg="black")
             klient_name = Button(text="Регистрация",height=1, command=lambda: self.compare_pass((text_klient_pass_l,
@@ -313,32 +360,9 @@ class Win(tkinter.Tk):
             return self.name
 
 #функции sql
-        def create_bd(self):
-            """
-            создает базу данных
-            :return:
-            """
-            with sqlite3.connect(self.path_to_db) as content:
-                cursor = content.cursor()
-                cursor.execute("""CREATE TABLE IF NOT EXISTS "self.name"(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                client VARCHAR,
-                topic VARCHAR,
-                text TEXT,
-                status TEXT
-                )""")
 
-        def print_table(self):
-            """
-            возвращает список из базы данных
-            :return:
-            """
-            with sqlite3.connect(self.path_to_db) as content:
-                cursor = content.cursor()
-                cursor.execute("SELECT *FROM 'self.name'")
-                cursor.execute("""
-                """)
-                return cursor.fetchall()
+
+
 
         def clear_inter(self, list):
             """
@@ -380,6 +404,7 @@ class Win(tkinter.Tk):
 
         def update_info(self,data):
             """
+            перептсать
             обнавляет параметр статус в бд
             :param data:
             :return:
@@ -403,14 +428,13 @@ class Win(tkinter.Tk):
             return data[0]
 #функции для вкладки "показать заявки"
 
-        def count_button(self,  ):
+        def count_button(self, data_ ):
             """
             Из полученных данных формирует информацию для будующих кнопок.
             :param data: данные из sql таблици
             :return:
             """
-            print(type(self.name))
-            data=self.oders_db.return_info(self.name)
+            #data=self.oders_db.return_info(self.name)
 
             self.list_button_info = []
             name_computer = ""
@@ -418,18 +442,22 @@ class Win(tkinter.Tk):
                 name_computer = "user"
             else:
                 name_computer = "admin"
+            for data in data_:
+                for i in data:
+                    print(i,9)
+                    zip = []
+                    for biter in i:
+                        print(type(biter))
+                        word = ""
+                        for liter in str(biter):
+                            if liter != "\n":
+                                word = word + liter
+                        #if i[1] == self.name or name_computer == "admin":
 
-            for i in data:
-                zip = []
-                for biter in i:
-                    word = ""
-                    for liter in str(biter):
-                        if liter != "\n":
-                            word = word + liter
-                    if i[1] == self.name or name_computer == "admin":
                         zip.append(word)
-                if zip:
-                    self.list_button_info.append(zip)
+                    if zip:
+                        self.list_button_info.append(zip)
+            print(self.list_button_info)
 
 
 
@@ -440,6 +468,7 @@ class Win(tkinter.Tk):
             """
             self.list_button = []
             for i in self.list_button_info:
+                print(i,90)
                 self.create_but(i)
 
         def create_but(self,text):
@@ -457,36 +486,61 @@ class Win(tkinter.Tk):
                          command=lambda: self.put_text(text))
             self.list_button.append(but)
 
+        def swow_but(self,sarch,layer):
+            """
+            прячет кнопки под виджетами чтобы они(кнопки) не заслоняли их
+
+            :param sarch: рамка поиска
+            :param layer: фрам с кнопками
+            :return:
+            """
+            count=0
+            for but in self.list_button:
+                if sarch.winfo_y()+sarch.winfo_height()-but.winfo_height()>but.winfo_y():
+                    self.list_button[count].lower(layer)
+                else:
+                    self.list_button[count].lift(layer)
+
+                count+=1
+
         def put_button(self, ):
             """
             расставляет всджеты на второй вкладке
             :return:
             """
+
             self.sarch_combobox = {}
             print(len(self.wiwets))
             self.del_wiget(self.wiwets)
             self.wiwets = []
             print(len(self.wiwets))
             heighre_ = len(self.list_button) * 26
-            mane_frame=Frame(self.frame_text_oders,)
+            mane_frame=Frame(self.frame_text_oders,bg="yellow")
             convas = Canvas(mane_frame,bg="gray")
-            fremer = Frame(convas, width=0)
+            fremer = Frame(convas, width=0,bg="red")
             skroll = Scrollbar(convas)
-            frame_sarch=Frame(self.frame_text_oders, )
+            frame_sarch=Frame()
             days = list(range(1,32))
             months=list(range(1,13))
             years=list(range(2021,2099))
             sarch_button=Button(text="Sarch",command=lambda :self.get_info_sarch())
             fremer.pack(side=RIGHT, fill=BOTH, expand=1)
+
             convas.create_window((0, 0), window=fremer, width=0, height=heighre_, anchor=N + W)
+
             self.wiwets.extend([convas, skroll, fremer])
+
             for i in self.list_button:
-                i.pack(in_=fremer, side=TOP, fill=BOTH, expand=1,)
+                i.pack(in_=fremer, side=TOP, fill=BOTH, expand=1, )
                 self.wiwets.append(i)
+
             skroll.config(command=convas.yview)
+
             skroll.pack(side=RIGHT, fill=Y, )
             convas.config(yscrollcommand=skroll.set, scrollregion=(0, 0, 0, heighre_), )
             convas.pack(side=LEFT, fill=BOTH, expand=1)
+
+
             sarch_button.grid(in_=frame_sarch,row=1,column=4)
             row=0
             column=1
@@ -514,9 +568,13 @@ class Win(tkinter.Tk):
             sarch_word_l=self.create_wigets("lable",1,("Word",),())[0]
             sarch_word.grid(in_=frame_sarch,row=4,column=1,)
             sarch_word_l.grid(in_=frame_sarch,row=4,column=0,)
-            frame_sarch.pack()
-            mane_frame.pack(side=LEFT, fill=BOTH, expand=1)
+            frame_sarch.pack(in_=self.frame_text_oders,fill=BOTH)
+            mane_frame.pack(side=LEFT, fill=BOTH, expand=1,)
+            self.pallat.place()
+            skroll.bind("<Motion>", lambda event:self.swow_but(frame_sarch,fremer))
+            skroll.bind("<Button-1>", lambda event: self.swow_but(frame_sarch,fremer))
 
+            
             self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame,sarch_word))
 
         def wreate_sarch_combobox(self,list):
@@ -554,32 +612,85 @@ class Win(tkinter.Tk):
                     if g.winfo_id()==self.sarch_combobox[count]:
                         sarch_combobox_get[i]=g.get()
                 count+=1
-            self.count_sarch_parametrs(sarch_combobox_get)
+            list_login=[self.name,"pop"]
+            result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
+            if all(result)==False:
+                massege.showerror("Поиск","Поиск не дал результатов")
+            else:
+                massege.showerror("Поиск",f"Результаты поиска  для пользователей {list_login}")
+
+            #self.put_text(result)
+            self.click_to_notebook(result)
             return sarch_combobox_get
 
-        def count_sarch_parametrs(self,dict_):
-            last=all(list(dict_[i] for i in dict_ if "last" in i))
-            next=all(list(dict_[i] for i in dict_ if "next" in i))
-            word=all(list(dict_[i] for i in dict_ if "word" in i))
+        def count_sarch_parametrs(self,dict_,list_login):
+            """
+            :param dict_:
+            :param list_login:
+            :return:
+            """
+            complit_count = {}
+            listok=("year","month","day")
+            complit_count["list_l"]=list(int(dict_["last_"+i]) for i in listok if dict_["last_"+i]!="")
+            complit_count["list_n"]=list(int(dict_["next_"+i]) for i in listok if dict_["next_"+i]!="")
+            complit_count["list_w"]=list(dict_[i] for i in dict_ if "word" in i)
+            if len(complit_count["list_l"])<3:
+                complit_count["list_l"].append(0)
+            if len(complit_count["list_n"])<3:
+                complit_count["list_n"].append(0)
+            last,next,word=all(complit_count["list_l"]),all(complit_count["list_n"]),all(complit_count["list_w"])
             all_find=[last,next,word]
-            only_period=all_find[0:2]
-            strictly_date=all_find[0]
-            find=(all(all_find),all(only_period),strictly_date)
-            if all(find)==True:
-                print("ищем все")
-            elif all(only_period)==True:
-                print("ищем период")
-            elif  strictly_date==True:
-                print("ищем дату")
+            complit_count["only_period"]=all_find[0:2]
+            complit_count["strictly_date"]=all_find[0]
+            complit_count["find"]=(all(all_find),all(complit_count["only_period"]),complit_count["strictly_date"])
+            complit_count["list_login"]=list_login
+            complit_data = self.take_info_in_bd(complit_count)
+            return complit_data
 
+        def count_parametrs(self,):
+            list_login=["user","pop"]
+            complit_count = {}
+            complit_count["list_l"] = []
+            complit_count["list_n"] = []
+            complit_count["list_w"] = []
+            if len(complit_count["list_l"]) < 3:
+                complit_count["list_l"].append(0)
+            if len(complit_count["list_n"]) < 3:
+                complit_count["list_n"].append(0)
+            last, next, word = all(complit_count["list_l"]), all(complit_count["list_n"]), all(complit_count["list_w"])
+            all_find = [last, next, word]
+            complit_count["only_period"] = all_find[0:2]
+            complit_count["strictly_date"] = all_find[0]
+            complit_count["find"] = (all(all_find), all(complit_count["only_period"]), complit_count["strictly_date"])
+            complit_count["list_login"] = list_login
+            complit_data = self.take_info_in_bd(complit_count)
+            return complit_data
 
-
-
-
-
-
-
-
+        def take_info_in_bd(self,complit_count:dict):
+            """
+            :param complit_count:
+            :return:
+            """
+            data=[]
+            print(complit_count["list_w"],bool(complit_count["list_w"]),999999999999999999999999999999999999999999)
+            if all(complit_count["find"])==True:
+                for login in complit_count["list_login"]:
+                    data.append(self.oders_db.return_info_ddw(login,datetime.date(*complit_count["list_l"]),
+                                datetime.date(*complit_count["list_n"]),*complit_count["list_w"]))
+            elif all(complit_count["only_period"])==True:
+                for login in complit_count["list_login"]:
+                    data.append(self.oders_db.return_info_dd(login,datetime.date(*complit_count["list_l"]),
+                                datetime.date(*complit_count["list_n"])))
+            elif  bool(complit_count["strictly_date"])==True:
+                for login in complit_count["list_login"]:
+                    data.append(self.oders_db.return_info_d(login,datetime.date(*complit_count["list_l"])))
+            elif bool(complit_count["list_w"])==True:
+                for login in complit_count["list_login"]:
+                    data.append(self.oders_db.return_info_w(login,*complit_count["list_w"]))
+            else:
+                for login in complit_count["list_login"]:
+                    data.append(self.oders_db.return_info(login))
+            return data
 
         def create_wigets(self,types,amount,args,funk):
 
@@ -607,7 +718,7 @@ class Win(tkinter.Tk):
             :return:
             """
 
-            self.del_wiget()
+            self.del_wiget(self.wiwets)
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
             but_back = Button(frame_but, text="Назад", command=lambda: self.put_button())
@@ -636,9 +747,8 @@ class Win(tkinter.Tk):
             self.put_text(data)
             massege.showerror("Изменение", "Заявка отмечена как 'выполенно'")
 
-        def click_to_notebook(self):
-
-            self.count_button()
+        def click_to_notebook(self ,list):
+            self.count_button(list)
             self.create_button()
             self.put_button()
 
@@ -648,21 +758,21 @@ class Win(tkinter.Tk):
             если режим админа запужен иледит за бд и выдает сообщение  при ее изменении
             :return:
             """
-            len_sql=len(self.print_table())
-            while True:
-                time.sleep(2)
-                if self.admin=="admin" and len(self.print_table())>len_sql:
-                    len_sql=len(self.print_table())
-                    list_info=self.print_table()[0]
-                    info=[list_info[1],list_info[2]]
-                    massege.showerror("Внимание",f"Новая заявка:\n заявитель-{info[0]} тема-{info[1]}")
+            #len_sql=len(self.print_table())
+            #while True:
+                #pass
+                #time.sleep(2)
+                #if self.admin=="admin" and len(self.print_table())>len_sql:
+                    #len_sql=len(self.print_table())
+                    #list_info=self.print_table()[0]
+                    #info=[list_info[1],list_info[2]]
+                    #massege.showerror("Внимание",f"Новая заявка:\n заявитель-{info[0]} тема-{info[1]}")
 
 
 
 
 
 
-print(datetime.date(2022,10,22))
 winner=Win()
 winner.set_parametrs()
 winner.pack_widgets()

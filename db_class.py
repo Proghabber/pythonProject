@@ -15,6 +15,7 @@ import datetime
 #
 conect=sqlite3.connect("base_data/work.db")
 cursor=conect.cursor()
+
 class Users():
     def __init__(self,cursor):
         self.cursor=cursor
@@ -87,17 +88,54 @@ class Orders():
         return self.cursor.fetchall()
 
     def return_info_dd(self,login,date_last,date_next):
-        date_last=[2021,10,21]
-        date_next=[2022,10,22]
-        #next=
-        login="user"
-
         self.cursor.execute(
             """
             SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
             FROM orders AS o 
             JOIN users AS u ON o.login = u.login
-            WHERE o.login = ? AND o.date_created BETWEEN '2022-07-30' AND '2022-08-31'
+            WHERE o.login = ? AND o.date_created BETWEEN ? AND ?
+            """, ([login,date_last,date_next])
+
+        )
+        return self.cursor.fetchall()
+
+    def return_info_ddw(self,login,date_last,date_next,word):
+        self.cursor.execute(
+            f"""
+            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            FROM orders AS o 
+            JOIN users AS u ON o.login = u.login
+            WHERE o.login = ? AND o.title LIKE '%{word}%' OR o.text LIKE '%{word}%'
+            AND o.date_created BETWEEN ? AND ? 
+            
+            
+            """, ([login,date_last,date_next])
+
+        )
+        return self.cursor.fetchall()
+
+    def return_info_d(self, login, date_last,):
+        self.cursor.execute(
+            f"""
+            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            FROM orders AS o 
+            JOIN users AS u ON o.login = u.login
+            WHERE o.login = ? AND o.date_created LIKE '%{date_last}%'
+            """, ([login])
+
+        )
+        return self.cursor.fetchall()
+
+    def return_info_w(self, login,word):
+        self.cursor.execute(
+            f"""
+            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            FROM orders AS o 
+            JOIN users AS u ON o.login = u.login
+            WHERE o.login = ? AND o.title LIKE '%{word}%' OR o.text LIKE '%{word}%'
+             
+
+
             """, ([login])
 
         )
