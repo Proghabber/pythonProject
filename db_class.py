@@ -26,18 +26,19 @@ class Users():
             CREATE TABLE IF NOT EXISTS users(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 login VARCHAR(30) NOT NULL UNIQUE,
+                user_type VARCHAR(30) NOT NULL,
                 password VARCHAR(30) NOT NULL
             );  
             """
         )
 
-    def write_db(self,login,password):
+    def write_db(self,login,password,klient_type):
         self.cursor.execute(
             """
-            INSERT INTO users(login,password)
-            VALUES(?,?)
+            INSERT INTO users(login,password,user_type)
+            VALUES(?,?,?)
             """,
-            (login,password)
+            (login,password,klient_type)
         )
         self.cursor.execute(
             "commit;"
@@ -45,11 +46,21 @@ class Users():
     def enter_programm(self,login,password):
         self.cursor.execute(
             """
-            SELECT login,password FROM users WHERE login=? AND password=?
+            SELECT login,password,user_type FROM users WHERE login=? AND password=?
             """,(login,password)
 
         )
+
         return self.cursor.fetchall()
+
+    def return_all_users(self):
+        self.cursor.execute(
+            """
+            select login FROM users"""
+        )
+        return self.cursor.fetchall()
+
+
 
 
 class Orders():

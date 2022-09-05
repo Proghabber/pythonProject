@@ -9,37 +9,6 @@ import threading
 import time
 import db_class
 
-class button_trans():
-    def __init__(self,list_):
-        super().__init__()
-        self.llst=list_
-        self.height=0
-        self.obi=frame_=Frame(height=100,width=100)
-        self.placee=""
-    def but(self):
-        if len(self.llst[3]) > 10:
-            len_mass = 10
-        else:
-            len_mass = len(text[3])
-        but = Button(text=f"{self.llst[0]} {self.llst[1]} {self.llst[2]}-{self.llst[3][0:len_mass]}",
-                     command=lambda: self.put_text(self.llst[1]))
-        self.height=but.winfo_height()
-        self.obi=but
-        return self
-
-    def farame(self):
-        frame_=Frame(height=self.height,width=100)
-        self.obi = frame_
-        return self
-
-    def place_(self,pla):
-        self.placee=pla
-        self.obi.pack(in_=self.placee,side=TOP)
-
-    def return_winfo_y(self):
-        return  self.obi.winfo_y()
-
-
 
 
 
@@ -78,7 +47,7 @@ class Win(tkinter.Tk):
             self.scrol_text = Scrollbar(self.tab1, command=self.text_enter.yview)
             self.batton_send_info = Button(self.frame_sent, text="Отправить",command=lambda :self.write_table())
             #вторая вкладка
-            self.pallat=Frame(self)
+            #self.pallat=Frame(self)
             self.tab2 = ttk.Frame(self.tabControl,)
             self.frame_tab2 = Frame(self.tab2)
             self.frame_text_oders = Frame(self.frame_tab2, )
@@ -99,8 +68,8 @@ class Win(tkinter.Tk):
             self.text_enter_themm.insert(INSERT, "Тема", )
             self.text_enter.config(yscrollcommand=self.scrol_text.set)
             self.tabControl.add(self.tab2, text='Посмотреть заявки')
-            self.tabControl.bind('<Button-1>', lambda e: self.click_to_notebook(self.count_parametrs()))
-            self.tab2.place()
+            self.tabControl.bind('<Button-1>', lambda e: self.put_button("not_creete_button"))
+            #self.tab2.bind('<Button-1>', lambda e: self.click_to_notebook(self.count_parametrs()))
 
         def pack_widgets(self):
 
@@ -115,15 +84,11 @@ class Win(tkinter.Tk):
             self.text_enter_themm.pack(anchor=N, expand=1, fill=X, side=BOTTOM,)
             self.batton_send_info.pack(side=LEFT)
             self.scrol_text.pack(in_=self.frame_text, anchor=NE, fill=Y, side=RIGHT,)
-
-
-
             self.tab1.place()
+
             self.tabControl.place(in_=self,relx=0, rely=0, relwidth=1, relheight=1)
             self.frame_text_oders.pack(anchor=NW, expand=1, fill=BOTH, )
             self.frame_tab2.place(relx=0, rely=0, relwidth=1, relheight=1)
-
-
             self.tab2.place()
 
 
@@ -182,10 +147,11 @@ class Win(tkinter.Tk):
                 else:
                     login=list[2].get()
                     password=list[1].get()
+                    klient_type=list[3].get()
                     list[0].delete(0, END)
                     list[1].delete(0, END)
                     try:
-                        self.user_db.write_db(login, password)
+                        self.user_db.write_db(login,password,klient_type)
                         self.enter_accept=True
                         self.name=login
                         if self.pass_checked.get()==1:
@@ -197,9 +163,6 @@ class Win(tkinter.Tk):
                     except:
 
                         massege.showerror("Ошибка", f"{self.name} регистрация ошибка")
-
-                    #self.know_name()
-
 
 
 
@@ -215,6 +178,7 @@ class Win(tkinter.Tk):
                     password.delete(0, END)
                 else:
                     massege.showerror("Вход", f"{login_new} привет")
+                    self.admin=self.user_db.enter_programm(login_new, password_new)[0][2]
                     self.name=login_new
                     self.enter_accept=True
                     self.enter_access()
@@ -303,16 +267,20 @@ class Win(tkinter.Tk):
             klient = Label( text="Имя клиента",anchor=W)
             text_klient = Entry(width=30,  bg="white", fg="black")
             klient_name = Button(text="Регистрация",height=1, command=lambda: self.compare_pass((text_klient_pass_l,
-                                                                                         text_klient_pass_rep_l,text_klient)))
+                                                                                                text_klient_pass_rep_l,
+                                                                                                 text_klient,klient_type)))
+            klient_type_l = Label(text="Тип пользователя")
             klient_pass_l = Label( text="Пароль",anchor=W)
             text_klient_pass_l=Entry(width=30 , show="*", bg="white", fg="black")
             klient_pass_rep_l = Label( text="Пароль повтор",anchor=W)
 
             text_klient_pass_rep_l=Entry(width=30, show="*", bg="white", fg="black")
+            klient_type = ttk.Combobox(values=["user", "admin"])
             button_pass = Button(text="Показать", height=1, command=lambda: self.show_pass((text_klient_pass_l,
                                                                                             text_klient_pass_rep_l)))
             button_back_of=Button(text="Назад",command=lambda:self.hi_client(),height=1)
             check_pass=Checkbutton(text="Сохранить пароль",variable=self.pass_checked,)
+
 
             frame_bottom = Frame(self.frame_info)
             frame_lable=Frame(frame_bottom)
@@ -327,11 +295,16 @@ class Win(tkinter.Tk):
             klient.pack(in_=frame_lable,side=TOP,expand=1,fill=BOTH,  padx=10,pady=1)
             klient_pass_l.pack(in_=frame_lable,side=TOP,expand=1,fill=BOTH, padx=10,pady=1)
             klient_pass_rep_l.pack(in_=frame_lable,side=TOP,expand=1,fill=BOTH, padx=10,pady=1)
+            klient_type_l.pack(in_=frame_lable, side=TOP, expand=1, fill=BOTH, padx=10, pady=1)
             klient_name.pack(in_=frame_lable,side=TOP,expand=1,fill=BOTH, padx=10,pady=1)
+
+
+
             #2
             text_klient.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
             text_klient_pass_l.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
             text_klient_pass_rep_l.pack(in_=frame_text, side=TOP,expand=1,fill=BOTH, anchor=NW, padx=10,pady=2)
+            klient_type.pack(in_=frame_text, side=TOP, expand=1, fill=BOTH, padx=10, pady=1)
             button_pass.pack(in_=frame_text, side=TOP,expand=1,fill=X, anchor=NW, padx=10,pady=2)
             button_back_of.pack(in_=frame_back_of, side=LEFT,expand=1,fill=X, anchor=NW, padx=2,pady=2)
             check_pass.pack(in_=frame_back_of, side=LEFT, padx=2,pady=2)
@@ -468,7 +441,6 @@ class Win(tkinter.Tk):
             """
             self.list_button = []
             for i in self.list_button_info:
-                print(i,90)
                 self.create_but(i)
 
         def create_but(self,text):
@@ -500,82 +472,99 @@ class Win(tkinter.Tk):
                     self.list_button[count].lower(layer)
                 else:
                     self.list_button[count].lift(layer)
-
                 count+=1
+        def pack_button(self,frame):
+            """
 
-        def put_button(self, ):
+            :param frame: место размещения
+            :return:
+            """
+            for i in self.list_button:
+                i.pack(in_=frame, side=TOP, fill=BOTH, expand=1, )
+                self.wiwets.append(i)
+        def pack_box_entery(self,frame):
+            """
+
+            :param frame: место размещения
+            :return:
+            """
+            days = list(range(1, 32))
+            months = list(range(1, 13))
+            years = list(range(2021, 2099))
+            row = 0
+            column = 1
+            list_box = self.create_wigets("Combobox", 6, (days, days, months, months, years, years), ())
+            sarch_word = self.create_wigets("Entery", 1, (), ())[0]
+            list_box.append(sarch_word)
+            self.wreate_sarch_combobox(list_box)
+            for i in list_box:
+                if column == 3:
+                    row += 1
+                    column = 1
+                i.grid(in_=frame, row=row, column=column, )
+                self.wiwets.append(i)
+                column += 1
+            sarch_word.grid(in_=frame, row=4, column=1, )
+            self.wiwets.append(sarch_word)
+        def pack_label(self,frame):
+            """
+            :param frame: место размещения
+            :return:
+            """
+            row = 0
+            column = 0
+            for i in self.create_wigets("lable", 6, ("from days", "from months", "from years", "to days", " to months",
+                                                     "to years"), ()):
+                if row == 3:
+                    row = 0
+                    column = 3
+                i.grid(in_=frame, row=row, column=column, )
+                self.wiwets.append(i)
+                row += 1
+            sarch_word_l = self.create_wigets("lable", 1, ("Word",), ())[0]
+            sarch_word_l.grid(in_=frame, row=4, column=0, )
+
+
+        def put_button(self,flag):
             """
             расставляет всджеты на второй вкладке
             :return:
             """
-
             self.sarch_combobox = {}
-            print(len(self.wiwets))
             self.del_wiget(self.wiwets)
             self.wiwets = []
-            print(len(self.wiwets))
             heighre_ = len(self.list_button) * 26
-            mane_frame=Frame(self.frame_text_oders,bg="yellow")
-            convas = Canvas(mane_frame,bg="gray")
-            fremer = Frame(convas, width=0,bg="red")
+            mane_frame=Frame(self.frame_text_oders,)
+            convas = Canvas(mane_frame,)
+            fremer = Frame(convas, width=0,)
             skroll = Scrollbar(convas)
             frame_sarch=Frame()
-            days = list(range(1,32))
-            months=list(range(1,13))
-            years=list(range(2021,2099))
             sarch_button=Button(text="Sarch",command=lambda :self.get_info_sarch())
             fremer.pack(side=RIGHT, fill=BOTH, expand=1)
 
             convas.create_window((0, 0), window=fremer, width=0, height=heighre_, anchor=N + W)
 
             self.wiwets.extend([convas, skroll, fremer])
-
-            for i in self.list_button:
-                i.pack(in_=fremer, side=TOP, fill=BOTH, expand=1, )
-                self.wiwets.append(i)
-
+##########button
+            if flag=="creete_button":
+                self.pack_button(fremer)
+###########box
+            self.pack_box_entery(frame_sarch)
+##########lable
+            self.pack_label(frame_sarch)
+#########
             skroll.config(command=convas.yview)
-
             skroll.pack(side=RIGHT, fill=Y, )
             convas.config(yscrollcommand=skroll.set, scrollregion=(0, 0, 0, heighre_), )
             convas.pack(side=LEFT, fill=BOTH, expand=1)
-
-
-            sarch_button.grid(in_=frame_sarch,row=1,column=4)
-            row=0
-            column=1
-            list_box=self.create_wigets("Combobox",6,(days,days,months,months,years,years),())
-            sarch_word = self.create_wigets("Entery", 1, (), ())[0]
-            list_box.append(sarch_word)
-            self.wreate_sarch_combobox(list_box)
-            for i in list_box:
-                if column==3:
-                    row+=1
-                    column = 1
-                i.grid(in_=frame_sarch,row=row,column=column,)
-                self.wiwets.append(i)
-                column+=1
-            row = 0
-            column = 0
-            for i in  self.create_wigets("lable",6,("from days","from months","from years","to days"," to months",
-                                                 "to years"),()):
-                if row==3:
-                    row=0
-                    column = 3
-                i.grid(in_=frame_sarch,row=row,column=column,)
-                self.wiwets.append(i)
-                row+=1
-            sarch_word_l=self.create_wigets("lable",1,("Word",),())[0]
-            sarch_word.grid(in_=frame_sarch,row=4,column=1,)
-            sarch_word_l.grid(in_=frame_sarch,row=4,column=0,)
+            sarch_button.grid(in_=frame_sarch, row=1, column=4)
             frame_sarch.pack(in_=self.frame_text_oders,fill=BOTH)
             mane_frame.pack(side=LEFT, fill=BOTH, expand=1,)
-            self.pallat.place()
             skroll.bind("<Motion>", lambda event:self.swow_but(frame_sarch,fremer))
             skroll.bind("<Button-1>", lambda event: self.swow_but(frame_sarch,fremer))
 
             
-            self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame,sarch_word))
+            self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame,))
 
         def wreate_sarch_combobox(self,list):
             """
@@ -598,7 +587,6 @@ class Win(tkinter.Tk):
                 i.destroy()
 
 
-
         def get_info_sarch(self):
             """
             собирает значения combobox из поиска в словарь
@@ -606,25 +594,42 @@ class Win(tkinter.Tk):
             """
             names=("last_day","next_day","last_month","next_month","last_year","next_year","word")
             sarch_combobox_get={}
+            list_login = self.count_users()
             count=0
+
             for i in names:
                 for g in self.wiwets:
                     if g.winfo_id()==self.sarch_combobox[count]:
                         sarch_combobox_get[i]=g.get()
                 count+=1
-            list_login=[self.name,"pop"]
             result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
-            if all(result)==False:
-                massege.showerror("Поиск","Поиск не дал результатов")
+            if list_login:
+                if all(result)==False:
+                    massege.showerror("Поиск","Поиск не дал результатов")
+                else:
+                    massege.showerror("Поиск",f"Результаты поиска  для пользователей {list_login}")
             else:
-                massege.showerror("Поиск",f"Результаты поиска  для пользователей {list_login}")
+                massege.showerror("Ошибка","Для поиска заявок необходимо авторизироватся")
 
             #self.put_text(result)
             self.click_to_notebook(result)
+
             return sarch_combobox_get
+
+        def count_users(self):
+            list_users=[]
+            if self.admin=="admin":
+                list_users.extend(self.user_db.return_all_users())
+            elif self.get_name()!="name_competer":
+                list_users.append((self.get_name()))
+            list_users={name[0] for name in list_users}
+
+            return list_users
+
 
         def count_sarch_parametrs(self,dict_,list_login):
             """
+            собирает словарь с подготовленными параметрами  передает его take_info_in_bd() и возврящает результат
             :param dict_:
             :param list_login:
             :return:
@@ -668,11 +673,11 @@ class Win(tkinter.Tk):
 
         def take_info_in_bd(self,complit_count:dict):
             """
+            на основании заполненности запроса(complit_count), выбирает запрос для базы данных и возвращает результат
             :param complit_count:
             :return:
             """
             data=[]
-            print(complit_count["list_w"],bool(complit_count["list_w"]),999999999999999999999999999999999999999999)
             if all(complit_count["find"])==True:
                 for login in complit_count["list_login"]:
                     data.append(self.oders_db.return_info_ddw(login,datetime.date(*complit_count["list_l"]),
@@ -717,18 +722,22 @@ class Win(tkinter.Tk):
             :param text:
             :return:
             """
-
+            print(text)
             self.del_wiget(self.wiwets)
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
-            but_back = Button(frame_but, text="Назад", command=lambda: self.put_button())
+            but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.count_parametrs()))
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.update_status(text))
+            chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.update_status(text))
             tex_teria = Text(self.frame_text_oders, width=0)
-            tex_teria.insert(1.0, f"Заявитель-{text[1]}\nТема-{text[2]}\nCтатус-{text[4]}\nCообщение:\n{text[3]}")
+            tex_teria.insert(1.0, f"Заявитель-{text[7]}\nТема-{text[0]}\nCтатус-{text[2]}\nЗаявка подана-{text[3][0:10]}\n"
+                                  f"Заявка принята-{text[4]}\nЗаявку принял-{text[6]}\nЗаявка выполнена-{text[5]}\n"
+                                  f"Cообщение:\n{text[1]}")
             skrol_text = Scrollbar(self.frame_text_oders, command=tex_teria.yview)
             tex_teria.config(yscrollcommand=skrol_text.set)
-            self.wiwets.extend((frame_but, but_back, chec_statys, tex_teria, skrol_text))
+            self.wiwets.extend((frame_but, but_back, chec_statys,chec_accept,tex_teria, skrol_text))
             but_back.pack(side=LEFT)
+            chec_accept.pack(side=RIGHT)
             chec_statys.pack(side=RIGHT)
             frame_but.pack(side=TOP)
             tex_teria.pack(side=LEFT, fill=BOTH, expand=1)
@@ -750,7 +759,7 @@ class Win(tkinter.Tk):
         def click_to_notebook(self ,list):
             self.count_button(list)
             self.create_button()
-            self.put_button()
+            self.put_button("creete_button")
 
 
         def call_of_admin(self, ):
