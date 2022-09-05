@@ -69,7 +69,7 @@ class Win(tkinter.Tk):
             self.text_enter.config(yscrollcommand=self.scrol_text.set)
             self.tabControl.add(self.tab2, text='Посмотреть заявки')
             self.tabControl.bind('<Button-1>', lambda e: self.put_button("not_creete_button"))
-            #self.tab2.bind('<Button-1>', lambda e: self.click_to_notebook(self.count_parametrs()))
+
 
         def pack_widgets(self):
 
@@ -369,7 +369,7 @@ class Win(tkinter.Tk):
                 self.oders_db.write_order(data[1],data[2],data[0])
                 massege.showerror("Успех","Заявка отправлена")
             else:
-                massege.showerror("Ошибка","Для отправки сообщения авторизируйтесь")
+                massege.showerror("Ошибка","Для отправки заявки авторизируйтесь")
 
 
 
@@ -410,6 +410,7 @@ class Win(tkinter.Tk):
             #data=self.oders_db.return_info(self.name)
 
             self.list_button_info = []
+
             name_computer = ""
             if self.admin == "user":
                 name_computer = "user"
@@ -417,10 +418,9 @@ class Win(tkinter.Tk):
                 name_computer = "admin"
             for data in data_:
                 for i in data:
-                    print(i,9)
+
                     zip = []
                     for biter in i:
-                        print(type(biter))
                         word = ""
                         for liter in str(biter):
                             if liter != "\n":
@@ -430,7 +430,7 @@ class Win(tkinter.Tk):
                         zip.append(word)
                     if zip:
                         self.list_button_info.append(zip)
-            print(self.list_button_info)
+
 
 
 
@@ -439,6 +439,7 @@ class Win(tkinter.Tk):
             Перебирает инфу для кнопок и запускает функцию создания кнопки
             :return:
             """
+
             self.list_button = []
             for i in self.list_button_info:
                 self.create_but(i)
@@ -611,7 +612,7 @@ class Win(tkinter.Tk):
             else:
                 massege.showerror("Ошибка","Для поиска заявок необходимо авторизироватся")
 
-            #self.put_text(result)
+
             self.click_to_notebook(result)
 
             return sarch_combobox_get
@@ -638,7 +639,7 @@ class Win(tkinter.Tk):
             listok=("year","month","day")
             complit_count["list_l"]=list(int(dict_["last_"+i]) for i in listok if dict_["last_"+i]!="")
             complit_count["list_n"]=list(int(dict_["next_"+i]) for i in listok if dict_["next_"+i]!="")
-            complit_count["list_w"]=list(dict_[i] for i in dict_ if "word" in i)
+            complit_count["list_w"]=list(dict_[i] for i in dict_ if "word" in i and dict_[i]!="")
             if len(complit_count["list_l"])<3:
                 complit_count["list_l"].append(0)
             if len(complit_count["list_n"])<3:
@@ -653,7 +654,7 @@ class Win(tkinter.Tk):
             return complit_data
 
         def count_parametrs(self,):
-            list_login=["user","pop"]
+            list_login=self.count_users()
             complit_count = {}
             complit_count["list_l"] = []
             complit_count["list_n"] = []
@@ -722,7 +723,6 @@ class Win(tkinter.Tk):
             :param text:
             :return:
             """
-            print(text)
             self.del_wiget(self.wiwets)
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
@@ -757,6 +757,7 @@ class Win(tkinter.Tk):
             massege.showerror("Изменение", "Заявка отмечена как 'выполенно'")
 
         def click_to_notebook(self ,list):
+
             self.count_button(list)
             self.create_button()
             self.put_button("creete_button")
