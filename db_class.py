@@ -86,10 +86,16 @@ class Orders():
             );
             """
         )
+    def return_who_accept(self,id,):
+        select_info=""" SELECT who_maked FROM orders  WHERE id=?"""
+        list_info = (id,)
+        self.cursor.execute(select_info, list_info)
+        return self.cursor.fetchone()
+
     def return_info(self,login):
         self.cursor.execute(
             """
-            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id
             FROM orders AS o 
             JOIN users AS u ON o.login = u.login
             WHERE o.login = ?
@@ -159,8 +165,19 @@ class Orders():
                 INSERT INTO orders(title,text,login)
                 VALUES(?,?,?)
             """,
-            (title,text,login)
+            ([title,text,login])
         )
         self.cursor.execute("commit;")
+
+    def update_order(self,process,id_order,who_accept):
+        if process=="accept":
+            apdate_info = """UPDATE orders SET status = ?, who_maked = ?, date_accept = datetime('now', 'localtime') WHERE id = ?"""
+            column_info = ("Взято на контроль",who_accept, id_order,)
+            self.cursor.execute( apdate_info, column_info)
+            self.cursor.execute("commit;")
+        elif process=="complete":
+            pass
+
+
 
 

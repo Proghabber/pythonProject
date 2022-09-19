@@ -371,23 +371,37 @@ class Win(tkinter.Tk):
             else:
                 massege.showerror("Ошибка","Для отправки заявки авторизируйтесь")
 
-
-
-
-
         def update_info(self,data):
             """
-            перептсать
-            обнавляет параметр статус в бд
+
             :param data:
             :return:
             """
-            with sqlite3.connect(self.path) as content:
-                cursos = content.cursor()
-                cursos.execute("SELECT id  FROM 'self.name'")
-                cursos.execute("UPDATE  'self.name'  SET status = 'Исполнено' WHERE id = (?)", [data[0]])
+            id_order=data[0]
+            who_accept=data[1]
+            if None in self.oders_db.return_who_accept(id_order,):
+                self.oders_db.update_order("accept",id_order,who_accept,)
+                massege.showerror("Сообщение",F"Заявка принята пользователем - {who_accept}")
+            else:
+                massege.showerror("Сообщение",F"Эта заявка уже принята пользователем {self.oders_db.return_who_accept(id_order,)[0]}")
 
-        # вернуть функции cathe_sql  call_of_admin
+
+
+
+
+        #def update_info(self,data):
+           # """
+            #перептсать
+            #обнавляет параметр статус в бд
+           # :param data:
+            #:return:
+            #"""
+           # with sqlite3.connect(self.path) as content:
+                #cursos = content.cursor()
+                #cursos.execute("SELECT id  FROM 'self.name'")
+                #cursos.execute("UPDATE  'self.name'  SET status = 'Исполнено' WHERE id = (?)", [data[0]])
+
+
 #функции для вкладки "составить заявку"
         def collect_info(self):
             """
@@ -483,6 +497,7 @@ class Win(tkinter.Tk):
             for i in self.list_button:
                 i.pack(in_=frame, side=TOP, fill=BOTH, expand=1, )
                 self.wiwets.append(i)
+
         def pack_box_entery(self,frame):
             """
 
@@ -528,7 +543,7 @@ class Win(tkinter.Tk):
 
         def put_button(self,flag):
             """
-            расставляет всджеты на второй вкладке
+            расставляет виджеты на второй вкладке
             :return:
             """
             self.sarch_combobox = {}
@@ -728,7 +743,7 @@ class Win(tkinter.Tk):
             frame_but = Frame(self.frame_text_oders)
             but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.count_parametrs()))
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.update_status(text))
-            chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.update_status(text))
+            chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.update_status((text,self.name)))
             tex_teria = Text(self.frame_text_oders, width=0)
             tex_teria.insert(1.0, f"Заявитель-{text[7]}\nТема-{text[0]}\nCтатус-{text[2]}\nЗаявка подана-{text[3][0:10]}\n"
                                   f"Заявка принята-{text[4]}\nЗаявку принял-{text[6]}\nЗаявка выполнена-{text[5]}\n"
@@ -737,8 +752,10 @@ class Win(tkinter.Tk):
             tex_teria.config(yscrollcommand=skrol_text.set)
             self.wiwets.extend((frame_but, but_back, chec_statys,chec_accept,tex_teria, skrol_text))
             but_back.pack(side=LEFT)
-            chec_accept.pack(side=RIGHT)
-            chec_statys.pack(side=RIGHT)
+            if self.admin=="admin":
+                chec_accept.pack(side=RIGHT)
+            else:
+                chec_statys.pack(side=RIGHT)
             frame_but.pack(side=TOP)
             tex_teria.pack(side=LEFT, fill=BOTH, expand=1)
             skrol_text.pack(side=RIGHT, fill=Y)
@@ -750,10 +767,11 @@ class Win(tkinter.Tk):
             :return:
             """
 
-            self.update_info(data)
+            self.update_info((data[0][8],data[1]))
             self.create_button()
-            data[4] = "Исполнено"
-            self.put_text(data)
+            data_new=self.oders_db.return_info(data[0][7])
+            print(data_new[0])
+            self.put_text(data_new[0])
             massege.showerror("Изменение", "Заявка отмечена как 'выполенно'")
 
         def click_to_notebook(self ,list):
