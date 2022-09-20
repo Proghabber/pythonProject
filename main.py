@@ -732,12 +732,27 @@ class Win(tkinter.Tk):
                     return_wigets.append(Entry())
             return return_wigets
 
+        def precondichen_list(self,list):
+            """
+            создает вльтернативный список с информацией о завке заменяя None на нет
+            :param list:
+            :return:
+            """
+            list_new=[]
+            for i in list:
+                if i =="None" or i==None:
+                    list_new.append("нет")
+                else:
+                    list_new.append(i)
+            return list_new
+
         def put_text(self, text):
             """
             формерует и размещает текст и текстовое поле на экране
             :param text:
             :return:
             """
+            order_text=self.precondichen_list(text)
             self.del_wiget(self.wiwets)
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
@@ -745,9 +760,10 @@ class Win(tkinter.Tk):
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.update_status(text))
             chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.update_status((text,self.name)))
             tex_teria = Text(self.frame_text_oders, width=0)
-            tex_teria.insert(1.0, f"Заявитель-{text[7]}\nТема-{text[0]}\nCтатус-{text[2]}\nЗаявка подана-{text[3][0:10]}\n"
-                                  f"Заявка принята-{text[4]}\nЗаявку принял-{text[6]}\nЗаявка выполнена-{text[5]}\n"
-                                  f"Cообщение:\n{text[1]}")
+            tex_teria.insert(1.0, f"Заявитель-{order_text[7]}\nТема-{order_text[0]}\nCтатус-{order_text[2]}\n"
+                                  f"Заявка подана-{order_text[3][0:10]}\n"f"Заявка принята-{order_text[4]}\n"
+                                  f"Заявку принял-{order_text[6]}\nЗаявка выполнена-{order_text[5]}\n"
+                                  f"Cообщение:\n{order_text[1]}")
             skrol_text = Scrollbar(self.frame_text_oders, command=tex_teria.yview)
             tex_teria.config(yscrollcommand=skrol_text.set)
             self.wiwets.extend((frame_but, but_back, chec_statys,chec_accept,tex_teria, skrol_text))
@@ -770,9 +786,8 @@ class Win(tkinter.Tk):
             self.update_info((data[0][8],data[1]))
             self.create_button()
             data_new=self.oders_db.return_info(data[0][7])
-            print(data_new[0])
             self.put_text(data_new[0])
-            massege.showerror("Изменение", "Заявка отмечена как 'выполенно'")
+            print(data_new[0],13)
 
         def click_to_notebook(self ,list):
 
