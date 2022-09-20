@@ -45,7 +45,9 @@ class Win(tkinter.Tk):
             self.text_enter = Text(self.frame_text, width=0, )
             self.text_enter_themm = Text(self.frame_sent, height=1)
             self.scrol_text = Scrollbar(self.tab1, command=self.text_enter.yview)
-            self.batton_send_info = Button(self.frame_sent, text="Отправить",command=lambda :self.write_table())
+            self.batton_send_info = Button(self.frame_sent, text="Отправить",
+                                           command=lambda :self.ask_user("Внимание","Вы хотите отправить сообжение?",
+                                                                           self.write_table,[]))
             #вторая вкладка
             #self.pallat=Frame(self)
             self.tab2 = ttk.Frame(self.tabControl,)
@@ -358,6 +360,22 @@ class Win(tkinter.Tk):
             list_new = [tuple(bow_new)]
 
             return list_new
+        def ask_user(self,title,text,fanc,list):
+            """
+            Запускает функцию message_yes_no проверяет ответ пользователя и если да,
+            то запускает функцию переданую в аргументах
+
+            :param title: заголовок
+            :param text: сообщение
+            :param fanc: фкнкция
+            :param list: аргументы функции
+            :return:
+            """
+            if self.message_yes_no(title,text):
+                if list:
+                    fanc(*list)
+                else:
+                    fanc()
 
         def write_table(self,):
             """
@@ -758,7 +776,8 @@ class Win(tkinter.Tk):
             frame_but = Frame(self.frame_text_oders)
             but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.count_parametrs()))
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.update_status(text))
-            chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.update_status((text,self.name)))
+            chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.ask_user(
+                                    "Внимание","Вы хотите принять заявку?",self.update_status,[[text,self.name]]))
             tex_teria = Text(self.frame_text_oders, width=0)
             tex_teria.insert(1.0, f"Заявитель-{order_text[7]}\nТема-{order_text[0]}\nCтатус-{order_text[2]}\n"
                                   f"Заявка подана-{order_text[3][0:10]}\n"f"Заявка принята-{order_text[4]}\n"
@@ -787,7 +806,16 @@ class Win(tkinter.Tk):
             self.create_button()
             data_new=self.oders_db.return_info(data[0][7])
             self.put_text(data_new[0])
-            print(data_new[0],13)
+
+        def message_yes_no(self,title,message_):
+            """
+            создает окно с вопросом и возвращает ответ
+            :param title: название окна
+            :param message_: текст вопроса
+            :return: ответ
+            """
+            answer=massege.askyesno(title,message_)
+            return answer
 
         def click_to_notebook(self ,list):
 
