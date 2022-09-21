@@ -629,6 +629,7 @@ class Win(tkinter.Tk):
             names=("last_day","next_day","last_month","next_month","last_year","next_year","word")
             sarch_combobox_get={}
             list_login = self.count_users()
+
             count=0
 
             for i in names:
@@ -654,9 +655,10 @@ class Win(tkinter.Tk):
             list_users=[]
             if self.admin=="admin":
                 list_users.extend(self.user_db.return_all_users())
+                list_users = {name[0] for name in list_users}
             elif self.get_name()!="name_competer":
                 list_users.append((self.get_name()))
-            list_users={name[0] for name in list_users}
+
 
             return list_users
 
