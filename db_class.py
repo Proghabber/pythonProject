@@ -86,16 +86,18 @@ class Orders():
             );
             """
         )
-    def return_who_accept(self,id,):
-        select_info=""" SELECT who_maked FROM orders  WHERE id=?"""
-        list_info = (id,)
+
+
+    def return_dc_wa(self, id):
+        select_info=""" SELECT date_complete,who_maked,login FROM orders WHERE id=?"""
+        list_info=(id,)
         self.cursor.execute(select_info, list_info)
-        return self.cursor.fetchone()
+        return self.cursor.fetchall()
 
     def return_info(self,login):
         self.cursor.execute(
             """
-            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id
+            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id
             FROM orders AS o 
             JOIN users AS u ON o.login = u.login
             WHERE o.login = ?
@@ -170,13 +172,16 @@ class Orders():
         self.cursor.execute("commit;")
 
     def update_order(self,process,id_order,who_accept):
+        apdate_info=None
+        column_info=[]
         if process=="accept":
             apdate_info = """UPDATE orders SET status = ?, who_maked = ?, date_accept = datetime('now', 'localtime') WHERE id = ?"""
-            column_info = ("Взято на контроль",who_accept, id_order,)
-            self.cursor.execute( apdate_info, column_info)
-            self.cursor.execute("commit;")
+            column_info = ["Взято на контроль",who_accept, id_order,]
         elif process=="complete":
-            pass
+            apdate_info = """UPDATE orders SET status = ?, date_complete = datetime('now', 'localtime') WHERE id = ?"""
+            column_info = ["Выполнено",id_order,]
+        self.cursor.execute(apdate_info, column_info)
+        self.cursor.execute("commit;")
 
 
 

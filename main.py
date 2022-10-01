@@ -397,27 +397,25 @@ class Win(tkinter.Tk):
             """
             id_order=data[0]
             who_accept=data[1]
-            if None in self.oders_db.return_who_accept(id_order,):
-                self.oders_db.update_order("accept",id_order,who_accept,)
-                massege.showerror("Сообщение",F"Заявка принята пользователем - {who_accept}")
-            else:
-                massege.showerror("Сообщение",F"Эта заявка уже принята пользователем {self.oders_db.return_who_accept(id_order,)[0]}")
+            info_order=self.oders_db.return_dc_wa(id_order)[0]
+            while True:
+                if  info_order.count(None)==2 and self.admin!="user" and self.name not in info_order:
+                    self.oders_db.update_order("accept", id_order, who_accept, )
+                    massege.showerror("Сообщение", F"Заявка принята пользователем - {who_accept}")
+                    break
+                elif info_order.count(None)==2 and self.name == info_order[2]:
+                    massege.showerror("Сообщение", F"Нельзя принять свою заявку")
+
+                elif info_order.count(None)==1 and self.admin=="user":
+                    self.oders_db.update_order("complete", id_order, who_accept, )
+                    massege.showerror("Сообщение", F"Заявка завершена")
+                    break
+                elif info_order.count(None)==0:
+                    massege.showerror("Сообщение", F"Эта заявка уже выполнена ")
+                    break
+                break
 
 
-
-
-
-        #def update_info(self,data):
-           # """
-            #перептсать
-            #обнавляет параметр статус в бд
-           # :param data:
-            #:return:
-            #"""
-           # with sqlite3.connect(self.path) as content:
-                #cursos = content.cursor()
-                #cursos.execute("SELECT id  FROM 'self.name'")
-                #cursos.execute("UPDATE  'self.name'  SET status = 'Исполнено' WHERE id = (?)", [data[0]])
 
 
 #функции для вкладки "составить заявку"
@@ -652,13 +650,16 @@ class Win(tkinter.Tk):
             return sarch_combobox_get
 
         def count_users(self):
+            """
+            создает список логинов в завмсимости от того является пользователь одмином и авторизирован ли он
+            :return: список логинов
+            """
             list_users=[]
             if self.admin=="admin":
                 list_users.extend(self.user_db.return_all_users())
                 list_users = {name[0] for name in list_users}
             elif self.get_name()!="name_competer":
                 list_users.append((self.get_name()))
-
 
             return list_users
 
@@ -777,7 +778,8 @@ class Win(tkinter.Tk):
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
             but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.count_parametrs()))
-            chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.update_status(text))
+            chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.ask_user(
+                                    "Внимание","Вы хотите завершить заявку?",self.update_status,[[text,self.name]]))
             chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.ask_user(
                                     "Внимание","Вы хотите принять заявку?",self.update_status,[[text,self.name]]))
             tex_teria = Text(self.frame_text_oders, width=0)
@@ -807,7 +809,9 @@ class Win(tkinter.Tk):
             self.update_info((data[0][8],data[1]))
             self.create_button()
             data_new=self.oders_db.return_info(data[0][7])
+            data_new=[i for i in data_new if int(data[0][8]) in i]
             self.put_text(data_new[0])
+            b=0
 
         def message_yes_no(self,title,message_):
             """
