@@ -21,7 +21,7 @@ class Win(tkinter.Tk):
             self.name ="name_competer"
             self.pass_=""
             self.password=""
-            self.path_to_db ="base_data/sik.db"
+            self.path_to_db = "venv/base_data/sik.db"
             self.list_wiget = []#self.tab1,
             self.admin = "user"
             self.user_db=db_class.Users(db_class.cursor)
@@ -732,6 +732,7 @@ class Win(tkinter.Tk):
             else:
                 for login in complit_count["list_login"]:
                     data.append(self.oders_db.return_info(login))
+            data=[i for i in data if i]
             return data
 
         def create_wigets(self,types,amount,args,funk):

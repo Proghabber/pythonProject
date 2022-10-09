@@ -18,7 +18,7 @@ class info_to_enter():
         self.list_wiget=[]
         self.name=""
         self.place=wig
-        self.path="base_data/sik.db"
+        self.path= "venv/base_data/sik.db"
 
     def get_name(self):
         return  self.name
@@ -60,7 +60,7 @@ class info_to_enter():
         """
         info = {"name_competer": self.name,"path":self.path}
         try:
-            with open("base_data/info.json", "w") as write_file:
+            with open("venv/base_data/info.json", "w") as write_file:
                 json.dump(info, write_file,ensure_ascii=False)
         except:
             pass
@@ -70,7 +70,7 @@ class info_to_enter():
         опредиляет сохранено имя в файле, если да то дает лабел с именем на табло, иначе запускает скрспт получения имени
         """
         try:
-            with open("base_data/info.json", "r") as read_file:
+            with open("venv/base_data/info.json", "r") as read_file:
                 info1 = json.load(read_file)
                 self.name = info1["name_competer"]
                 self.path = info1["path"]
