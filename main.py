@@ -17,15 +17,15 @@ import db_class
 class Win(tkinter.Tk):
         def __init__(self,):
             super().__init__()
-            self.info_json="base_data/info.json"
+            self.info_json="json/info.json"
             self.name ="name_competer"
             self.pass_=""
             self.password=""
-            self.path_to_db = "venv/base_data/sik.db"
+            self.path_to_db = "venv/base_data/work.db"
             self.list_wiget = []#self.tab1,
             self.admin = "user"
-            self.user_db=db_class.Users(db_class.cursor)
-            self.oders_db=db_class.Orders(db_class.cursor)
+            self.user_db=db_class.Users(db_class.path_(self.get_json()["path"]))
+            self.oders_db=db_class.Orders(db_class.path_(self.get_json()["path"]))
             self.enter_accept=False
             self.sarch_combobox={}
             self.pass_checked=IntVar()
@@ -326,7 +326,23 @@ class Win(tkinter.Tk):
                 with open(self.info_json, "w") as write_file:
                     json.dump(info, write_file, ensure_ascii=False)
             except:
-                pass
+                massege.showerror("Ошибка","Ошибка записи json файла")
+
+        def get_json(self):
+            """
+            считывает json файл и возвращает его
+            return data
+            """
+            self.runame()
+            try:
+                with open(self.info_json, "r") as write_file:
+                    data=json.load(write_file)
+
+                    return data
+            except:
+                massege.showerror("Ошибка","Ошибка чтения json файла")
+
+
 
 
 

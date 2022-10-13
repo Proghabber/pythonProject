@@ -1,7 +1,9 @@
 import sqlite3
 
-conect=sqlite3.connect("venv/base_data/work.db")
-cursor=conect.cursor()
+def path_(path):
+    conect=sqlite3.connect(path)
+    cursor=conect.cursor()
+    return cursor
 
 class Users():
     def __init__(self,cursor):
