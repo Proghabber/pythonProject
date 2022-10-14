@@ -30,6 +30,7 @@ class Win(tkinter.Tk):
             self.sarch_combobox={}
             self.pass_checked=IntVar()
 
+
             #боксы
             #первая вкладка
             self.tabControl = ttk.Notebook()
@@ -46,7 +47,7 @@ class Win(tkinter.Tk):
             self.text_enter_themm = Text(self.frame_sent, height=1)
             self.scrol_text = Scrollbar(self.tab1, command=self.text_enter.yview)
             self.batton_send_info = Button(self.frame_sent, text="Отправить",
-                                           command=lambda :self.ask_user("Внимание","Вы хотите отправить сообжение?",
+                                           command=lambda :self.ask_user("Внимание","Вы хотите отправить сообщение?",
                                                                            self.write_table,[]))
             #вторая вкладка
             #self.pallat=Frame(self)
@@ -57,6 +58,8 @@ class Win(tkinter.Tk):
             self.list_button_info = []
             self.list_button = []
             self.wiwets = []
+            self.exit_programm = Button(self.tabControl,height=1, text="Выход",command=lambda :self.ask_user("Внимание","Вы хотите покинуть программу?",
+                                                                           exit,[]))
 
 
 
@@ -92,6 +95,7 @@ class Win(tkinter.Tk):
             self.frame_text_oders.pack(anchor=NW, expand=1, fill=BOTH, )
             self.frame_tab2.place(relx=0, rely=0, relwidth=1, relheight=1)
             self.tab2.place()
+            self.exit_programm.pack(anchor=NE,padx=20, )
 
 
 
@@ -196,9 +200,11 @@ class Win(tkinter.Tk):
             self.del_wiget(self.list_wiget)
             frame_name=Frame(self.frame_info)
             label_name=Label(text=f"Пользователь-\n{self.name} ")
+            exit_clien=Button(text="Сменить пользователя",command=lambda :self.hi_client())
             frame_name.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
             label_name.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
-            self.list_wiget.extend((frame_name,label_name))
+            exit_clien.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
+            self.list_wiget.extend((frame_name,label_name,exit_clien))
 
 
 
@@ -333,14 +339,14 @@ class Win(tkinter.Tk):
             считывает json файл и возвращает его
             return data
             """
-            self.runame()
             try:
                 with open(self.info_json, "r") as write_file:
                     data=json.load(write_file)
 
                     return data
             except:
-                massege.showerror("Ошибка","Ошибка чтения json файла")
+                self.runame()
+                massege.showerror("Ошибка","Ошибка чтения json файла. Возможно перезапуск решит проблему.")
 
 
 
@@ -376,6 +382,7 @@ class Win(tkinter.Tk):
             list_new = [tuple(bow_new)]
 
             return list_new
+
         def ask_user(self,title,text,fanc,list):
             """
             Запускает функцию message_yes_no проверяет ответ пользователя и если да,
