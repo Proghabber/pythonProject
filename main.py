@@ -431,11 +431,14 @@ class Win(tkinter.Tk):
             id_order=data[0]
             who_accept=data[1]
             info_order=self.oders_db.return_dc_wa(id_order)[0]
+            print(info_order,self.name)
             while True:
                 if  info_order.count(None)==2 and self.admin!="user" and self.name not in info_order:
                     self.oders_db.update_order("accept", id_order, who_accept, )
                     massege.showinfo("Сообщение", F"Заявка принята пользователем - {who_accept}")
                     break
+                #elif info_order[2]==self.name:
+
                 elif info_order.count(None)==2 and self.name == info_order[2]:
                     massege.showinfo("Сообщение", F"Нельзя принять свою заявку")
 
@@ -826,13 +829,34 @@ class Win(tkinter.Tk):
             tex_teria.config(yscrollcommand=skrol_text.set)
             self.wiwets.extend((frame_but, but_back, chec_statys,chec_accept,tex_teria, skrol_text))
             but_back.pack(side=LEFT)
-            if self.admin=="admin":
-                chec_accept.pack(side=RIGHT)
-            else:
+            if self.chec_status_orders(text, self.name)=="accept":
+                print(self.chec_status_orders(text, self.name))
                 chec_statys.pack(side=RIGHT)
+            if self.chec_status_orders(text, self.name)=="not_accept":
+                print(self.chec_status_orders(text, self.name))
+                chec_accept.pack(side=RIGHT)
+            elif self.chec_status_orders(text, self.name)=="not_make":
+                print(self.chec_status_orders(text, self.name))
             frame_but.pack(side=TOP)
             tex_teria.pack(side=LEFT, fill=BOTH, expand=1)
             skrol_text.pack(side=RIGHT, fill=Y)
+
+        def chec_status_orders(self, order,user):
+            who_i=user
+            who_start_order=order[7]
+            who_accept=order[6]
+            status_order=order[2]
+            status=""
+
+            if self.admin == "admin" and who_i != who_start_order and status_order == "Активно":
+                status="not_accept"
+            elif who_i == who_start_order and status_order == "Взято на контроль":
+                status = "accept"
+            else:
+                status = "not_make"
+            return status
+
+
 
         def update_status(self,data):
             """
@@ -846,7 +870,7 @@ class Win(tkinter.Tk):
             data_new=self.oders_db.return_info(data[0][7])
             data_new=[i for i in data_new if int(data[0][8]) in i]
             self.put_text(data_new[0])
-            b=0
+
 
         def message_yes_no(self,title,message_):
             """
