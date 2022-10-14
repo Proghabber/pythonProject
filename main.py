@@ -163,7 +163,7 @@ class Win(tkinter.Tk):
                         if self.pass_checked.get()==1:
                             self.pass_ = password
                         self.enter_access()
-                        massege.showerror("Успех", f"{self.name} регистрация успешна")
+                        massege.showinfo("Успех", f"{self.name} регистрация успешна")
                         self.runame()
 
                     except:
@@ -183,7 +183,7 @@ class Win(tkinter.Tk):
                     massege.showerror("Ошибка","ошибка")
                     password.delete(0, END)
                 else:
-                    massege.showerror("Вход", f"{login_new} привет")
+                    massege.showinfo("Вход", f"{login_new} привет")
                     self.admin=self.user_db.enter_programm(login_new, password_new)[0][2]
                     self.name=login_new
                     self.enter_accept=True
@@ -196,12 +196,15 @@ class Win(tkinter.Tk):
                 pass
 
         def enter_access(self):
+            """
+            что происходит когда пользователь вошел
+            """
 
             self.del_wiget(self.list_wiget)
             frame_name=Frame(self.frame_info)
             label_name=Label(text=f"Пользователь-\n{self.name} ")
-            exit_clien=Button(text="Сменить пользователя",command=lambda :self.ask_user("Внимание","Вы уверены что хотите сменить пользователя?",
-                                                                           self.hi_client,[]))
+            exit_clien=Button(text="Сменить пользователя",command=lambda :self.ask_user("Внимание","Вы уверены что"
+                            " хотите сменить пользователя?",self.hi_client,[]))
             frame_name.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
             label_name.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
             exit_clien.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
@@ -211,6 +214,9 @@ class Win(tkinter.Tk):
 
 
         def hi_client(self):
+            """
+            что происходит при запуске программы
+            """
             self.del_wiget(self.list_wiget)
             self.list_wiget=[]
 
@@ -232,6 +238,9 @@ class Win(tkinter.Tk):
 
 
         def enter_programm(self):
+            """
+            выбрана опция войти на экране привецтвия
+            """
 
             self.del_wiget(self.list_wiget)
             self.list_wiget=[]
@@ -409,7 +418,7 @@ class Win(tkinter.Tk):
             if self.enter_accept==True:
                 data=self.collect_info()
                 self.oders_db.write_order(data[1],data[2],data[0])
-                massege.showerror("Успех","Заявка отправлена")
+                massege.showinfo("Успех","Заявка отправлена")
             else:
                 massege.showerror("Ошибка","Для отправки заявки авторизируйтесь")
 
@@ -425,17 +434,17 @@ class Win(tkinter.Tk):
             while True:
                 if  info_order.count(None)==2 and self.admin!="user" and self.name not in info_order:
                     self.oders_db.update_order("accept", id_order, who_accept, )
-                    massege.showerror("Сообщение", F"Заявка принята пользователем - {who_accept}")
+                    massege.showinfo("Сообщение", F"Заявка принята пользователем - {who_accept}")
                     break
                 elif info_order.count(None)==2 and self.name == info_order[2]:
-                    massege.showerror("Сообщение", F"Нельзя принять свою заявку")
+                    massege.showinfo("Сообщение", F"Нельзя принять свою заявку")
 
                 elif info_order.count(None)==1 and self.admin=="user":
                     self.oders_db.update_order("complete", id_order, who_accept, )
-                    massege.showerror("Сообщение", F"Заявка завершена")
+                    massege.showinfo("Сообщение", F"Заявка завершена")
                     break
                 elif info_order.count(None)==0:
-                    massege.showerror("Сообщение", F"Эта заявка уже выполнена ")
+                    massege.showinfo("Сообщение", F"Эта заявка уже выполнена ")
                     break
                 break
 
@@ -562,6 +571,7 @@ class Win(tkinter.Tk):
                 column += 1
             sarch_word.grid(in_=frame, row=4, column=1, )
             self.wiwets.append(sarch_word)
+
         def pack_label(self,frame):
             """
             :param frame: место размещения
@@ -662,9 +672,9 @@ class Win(tkinter.Tk):
             result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
             if list_login:
                 if all(result)==False:
-                    massege.showerror("Поиск","Поиск не дал результатов")
+                    massege.showinfo("Поиск","Поиск не дал результатов")
                 else:
-                    massege.showerror("Поиск",f"Результаты поиска  для пользователей {list_login}")
+                    massege.showinfo("Поиск",f"Результаты поиска  для пользователей {list_login}")
             else:
                 massege.showerror("Ошибка","Для поиска заявок необходимо авторизироватся")
 
