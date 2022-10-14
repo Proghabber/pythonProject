@@ -200,7 +200,8 @@ class Win(tkinter.Tk):
             self.del_wiget(self.list_wiget)
             frame_name=Frame(self.frame_info)
             label_name=Label(text=f"Пользователь-\n{self.name} ")
-            exit_clien=Button(text="Сменить пользователя",command=lambda :self.hi_client())
+            exit_clien=Button(text="Сменить пользователя",command=lambda :self.ask_user("Внимание","Вы уверены что хотите сменить пользователя?",
+                                                                           self.hi_client,[]))
             frame_name.pack(side=LEFT, expand=1, fill=BOTH, padx=10, pady=2)
             label_name.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
             exit_clien.pack(in_=frame_name,side=LEFT,expand=1, fill=BOTH, padx=10, pady=2)
