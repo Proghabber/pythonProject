@@ -422,35 +422,11 @@ class Win(tkinter.Tk):
             else:
                 massege.showerror("Ошибка","Для отправки заявки авторизируйтесь")
 
-        def update_info(self,data):
-            """
 
-            :param data:
-            :return:
-            """
-            id_order=data[0]
-            who_accept=data[1]
-            info_order=self.oders_db.return_dc_wa(id_order)[0]
-            print(info_order,self.name)
-            while True:
-                if  info_order.count(None)==2 and self.admin!="user" and self.name not in info_order:
-                    self.oders_db.update_order("accept", id_order, who_accept, )
-                    massege.showinfo("Сообщение", F"Заявка принята пользователем - {who_accept}")
-                    break
-                #elif info_order[2]==self.name:
-
-                elif info_order.count(None)==2 and self.name == info_order[2]:
-                    massege.showinfo("Сообщение", F"Нельзя принять свою заявку")
-
-                elif info_order.count(None)==1 and self.admin=="user":
-                    self.oders_db.update_order("complete", id_order, who_accept, )
-                    massege.showinfo("Сообщение", F"Заявка завершена")
-                    break
-                elif info_order.count(None)==0:
-                    massege.showinfo("Сообщение", F"Эта заявка уже выполнена ")
-                    break
-                break
         def accept_order(self,id_order,who_accept):
+            """
+            принимает заказ
+            """
             try:
                 self.oders_db.update_order("accept", id_order, who_accept, )
                 massege.showinfo("Сообщение", F"Заявка принята пользователем - {who_accept}")
@@ -458,6 +434,9 @@ class Win(tkinter.Tk):
                 massege.showerror("Ошибка","Ошибка при записи бд")
 
         def complit_order(self,id_order,who_accept):
+            """
+            завершает заказ
+            """
             try:
                 self.oders_db.update_order("complete", id_order, who_accept, )
                 massege.showinfo("Сообщение", F"Заявка завершена")
@@ -882,7 +861,7 @@ class Win(tkinter.Tk):
             id_order = data[0][8]
             who_accept = data[1]
             fanc(id_order,who_accept)
-            #self.update_info((data[0][8],data[1]))
+
             self.create_button()
             data_new=self.oders_db.return_info(data[0][7])
             data_new=[i for i in data_new if int(data[0][8]) in i]
