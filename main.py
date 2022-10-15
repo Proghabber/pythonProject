@@ -450,6 +450,20 @@ class Win(tkinter.Tk):
                     massege.showinfo("Сообщение", F"Эта заявка уже выполнена ")
                     break
                 break
+        def accept_order(self,id_order,who_accept):
+            try:
+                self.oders_db.update_order("accept", id_order, who_accept, )
+                massege.showinfo("Сообщение", F"Заявка принята пользователем - {who_accept}")
+            except:
+                massege.showerror("Ошибка","Ошибка при записи бд")
+
+        def complit_order(self,id_order,who_accept):
+            try:
+                self.oders_db.update_order("complete", id_order, who_accept, )
+                massege.showinfo("Сообщение", F"Заявка завершена")
+            except:
+                massege.showerror("Ошибка", "Ошибка при записи бд")
+
 
 
 
@@ -817,9 +831,9 @@ class Win(tkinter.Tk):
             frame_but = Frame(self.frame_text_oders)
             but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.count_parametrs()))
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.ask_user(
-                                    "Внимание","Вы хотите завершить заявку?",self.update_status,[[text,self.name]]))
+                                    "Внимание","Вы хотите завершить заявку?",self.update_status,[[text,self.name],self.complit_order]))
             chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.ask_user(
-                                    "Внимание","Вы хотите принять заявку?",self.update_status,[[text,self.name]]))
+                                    "Внимание","Вы хотите принять заявку?",self.update_status,[[text,self.name],self.accept_order]))
             tex_teria = Text(self.frame_text_oders, width=0)
             tex_teria.insert(1.0, f"Заявитель-{order_text[7]}\nТема-{order_text[0]}\nCтатус-{order_text[2]}\n"
                                   f"Заявка подана-{order_text[3][0:10]}\n"f"Заявка принята-{order_text[4]}\n"
@@ -830,24 +844,25 @@ class Win(tkinter.Tk):
             self.wiwets.extend((frame_but, but_back, chec_statys,chec_accept,tex_teria, skrol_text))
             but_back.pack(side=LEFT)
             if self.chec_status_orders(text, self.name)=="accept":
-                print(self.chec_status_orders(text, self.name))
                 chec_statys.pack(side=RIGHT)
-            if self.chec_status_orders(text, self.name)=="not_accept":
-                print(self.chec_status_orders(text, self.name))
+            elif self.chec_status_orders(text, self.name)=="not_accept":
                 chec_accept.pack(side=RIGHT)
             elif self.chec_status_orders(text, self.name)=="not_make":
-                print(self.chec_status_orders(text, self.name))
+                pass
             frame_but.pack(side=TOP)
             tex_teria.pack(side=LEFT, fill=BOTH, expand=1)
             skrol_text.pack(side=RIGHT, fill=Y)
 
         def chec_status_orders(self, order,user):
+            """
+            на основе данных о заказе и юзере, опредиляет какой статус заказа
+            return status статус заказа
+            """
             who_i=user
             who_start_order=order[7]
             who_accept=order[6]
             status_order=order[2]
             status=""
-
             if self.admin == "admin" and who_i != who_start_order and status_order == "Активно":
                 status="not_accept"
             elif who_i == who_start_order and status_order == "Взято на контроль":
@@ -858,14 +873,16 @@ class Win(tkinter.Tk):
 
 
 
-        def update_status(self,data):
+        def update_status(self,data,fanc):
             """
             обновляет статус заказа в таблице и для кнопок
             :param data:
             :return:
             """
-
-            self.update_info((data[0][8],data[1]))
+            id_order = data[0][8]
+            who_accept = data[1]
+            fanc(id_order,who_accept)
+            #self.update_info((data[0][8],data[1]))
             self.create_button()
             data_new=self.oders_db.return_info(data[0][7])
             data_new=[i for i in data_new if int(data[0][8]) in i]
