@@ -86,7 +86,7 @@ class Orders():
     def return_info(self,login):
         self.cursor.execute(
             """
-            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id
+            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id, o.comment
             FROM orders AS o 
             JOIN users AS u ON o.login = u.login
             WHERE o.login = ?
@@ -160,7 +160,7 @@ class Orders():
         )
         self.cursor.execute("commit;")
 
-    def update_order(self,process,id_order,who_accept):
+    def update_order(self,process,id_order,who_accept,comemnt):
         apdate_info=None
         column_info=[]
         if process=="accept":
@@ -169,6 +169,9 @@ class Orders():
         elif process=="complete":
             apdate_info = """UPDATE orders SET status = ?, date_complete = datetime('now', 'localtime') WHERE id = ?"""
             column_info = ["Выполнено",id_order,]
+        elif process=="comment":
+            apdate_info = """UPDATE orders SET comment = ? WHERE id = ?"""
+            column_info = [comemnt,id_order,]
         self.cursor.execute(apdate_info, column_info)
         self.cursor.execute("commit;")
 

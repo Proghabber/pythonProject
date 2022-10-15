@@ -23,6 +23,7 @@ class Win(tkinter.Tk):
             self.password=""
             self.path_to_db = "venv/base_data/work.db"
             self.list_wiget = []#self.tab1,
+            self.list_wiget_comment=[]
             self.admin = "user"
             self.user_db=db_class.Users(db_class.path_(self.get_json()["path"]))
             self.oders_db=db_class.Orders(db_class.path_(self.get_json()["path"]))
@@ -359,10 +360,6 @@ class Win(tkinter.Tk):
                 massege.showerror("Ошибка","Ошибка чтения json файла. Возможно перезапуск решит проблему.")
 
 
-
-
-
-
         def get_name(self):
             return self.name
 
@@ -442,6 +439,74 @@ class Win(tkinter.Tk):
                 massege.showinfo("Сообщение", F"Заявка завершена")
             except:
                 massege.showerror("Ошибка", "Ошибка при записи бд")
+
+        def check_comment(self,data,user):
+            """
+            проверяет можно ли остпвить коментарий
+            """
+            who_make=data[6]
+            is_comment=data[5]
+            status=data[2]
+            if who_make == user and is_comment == 'None' and status=='Взято на контроль':
+                return True
+            else:
+                return False
+
+        def  comment_window(self,windows,order,user):
+            """
+            Создает окно для комментариев
+            """
+            main_frame=Frame(windows,height=120,width=400,bg="green")
+            lable_frame=Frame(main_frame,height=1,width=400)
+            comment_frame=Frame(main_frame,heigh=3,width=400)
+            but_frame=Frame(main_frame,heigh=1,width=400)
+            lable_name=Label(lable_frame,text="Оставьте комментарий")
+            comment_text=Text(comment_frame,heigh=3,)
+            comment_text_scroll=Scrollbar(comment_frame,command=comment_text.yview)
+            comment_text.config(yscrollcommand= comment_text_scroll.set)
+            cancel_but=Button(but_frame,text="Отмена",command=lambda : self.ask_user(
+                                    "Внимание","Вы хотите закрыть окно? Коментарий не будет добавлен если вы его не отправили!!",self.clear_comment_window,[]))
+            write_but=Button(but_frame,text="Оставить коментарии",command=lambda :self.ask_user(
+                                    "Внимание","Вы хотите oставить комментарий? Коментарий  будет добавлен!",self. comment_write,[comment_text,user,order]))
+            main_frame.pack()
+            lable_frame.pack()
+            comment_frame.pack()
+            but_frame.pack()
+            lable_name.pack()
+            comment_text.pack(side=LEFT)
+            comment_text_scroll.pack(side=RIGHT,fill=Y)
+            cancel_but.pack(side=LEFT)
+            write_but.pack(side=LEFT)
+            self.list_wiget_comment.extend([main_frame,lable_frame,comment_frame,but_frame,lable_name,comment_text,
+                                            comment_text_scroll,cancel_but,write_but])
+
+        def clear_comment_window(self):
+            """
+            Удаляет окно для комментариев
+            """
+            self.del_wiget(self.list_wiget_comment)
+            self.list_wiget_comment = []
+            massege.showinfo("Отмена", "Коментарий не добавлен")
+
+        def comment_write(self,wig,user,id_order):
+            """
+            Получает данные из виджета и формирует их. Записывает в бд
+
+            """
+            id_=id_order[8]
+            text=wig.get(1.0, END)
+            if len(text)>1:
+                text=f"{user} оставил комментарий:\n{text}"
+                try:
+                    self.oders_db.update_order("comment",id_,None,text)
+                    massege.showinfo("Успех","Коментарий добавлен")
+                except:
+                    massege.showerror("Ошибка","Комментарий не добавлен, ошибка бд")
+            else:
+                massege.showinfo("Внимание", "Коментарий не должен быть пустым!")
+
+
+
 
 
 
@@ -805,6 +870,7 @@ class Win(tkinter.Tk):
             :return:
             """
             order_text=self.precondichen_list(text)
+            print(order_text)
             self.del_wiget(self.wiwets)
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
@@ -813,11 +879,14 @@ class Win(tkinter.Tk):
                                     "Внимание","Вы хотите завершить заявку?",self.update_status,[[text,self.name],self.complit_order]))
             chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.ask_user(
                                     "Внимание","Вы хотите принять заявку?",self.update_status,[[text,self.name],self.accept_order]))
+            comment=Button(frame_but, text="Оставить коментарий", command=lambda: self.ask_user(
+                                    "Внимание","Оставить коммент?",self.comment_window,[self,text,self.name]))
             tex_teria = Text(self.frame_text_oders, width=0)
             tex_teria.insert(1.0, f"Заявитель-{order_text[7]}\nТема-{order_text[0]}\nCтатус-{order_text[2]}\n"
                                   f"Заявка подана-{order_text[3][0:10]}\n"f"Заявка принята-{order_text[4]}\n"
                                   f"Заявку принял-{order_text[6]}\nЗаявка выполнена-{order_text[5]}\n"
-                                  f"Cообщение:\n{order_text[1]}")
+                                  f"Cообщение:\n{order_text[1]}\n"
+                                  f"Коментарий-{order_text[9]}")
             skrol_text = Scrollbar(self.frame_text_oders, command=tex_teria.yview)
             tex_teria.config(yscrollcommand=skrol_text.set)
             self.wiwets.extend((frame_but, but_back, chec_statys,chec_accept,tex_teria, skrol_text))
@@ -828,6 +897,8 @@ class Win(tkinter.Tk):
                 chec_accept.pack(side=RIGHT)
             elif self.chec_status_orders(text, self.name)=="not_make":
                 pass
+            if self.check_comment(text,self.name):
+                comment.pack(side=RIGHT)
             frame_but.pack(side=TOP)
             tex_teria.pack(side=LEFT, fill=BOTH, expand=1)
             skrol_text.pack(side=RIGHT, fill=Y)
