@@ -35,20 +35,11 @@ class Search():
             next_1=datetime.date(*next_)
         except:
             next_1=None
-        la=""
-        ne=""
-        for i in  str(last_1):
-            if i==":":
-                i="-"
-            la=la+i
-        for i in  str(next_1):
-            if i==":":
-                i="-"
-            ne=ne+i
+
         rez={}
-        rez["last"]=la
+        rez["last"]=last_1
         print(type(rez["last"]))
-        rez["next"]=ne
+        rez["next"]=next_1
         rez["word"]=word_
         rez["key"]=key
         c=self.select_fun(rez)

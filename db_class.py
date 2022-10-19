@@ -76,19 +76,47 @@ class Orders():
             """
         )
 
-    def return_info_search(self, login, date_last, date_next, word,key):
-        self.cursor.execute(
-            f"""
-               SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
-               FROM orders AS o 
-               JOIN users AS u ON o.login = u.login
-               WHERE o.login = ? AND o.title LIKE '%{word}%' OR o.text LIKE '%{word}%'
-               AND o.date_created BETWEEN ? AND ? AND status =?
+    def create_reqest(self,whats_reqest, login,date_last,date_next,word,key):
+        parts_reqest=[f"""AND o.date_created BETWEEN ? and ?""",f"""AND o.date_created = ?""",f"""AND status = ?""",f"""AND (o.title LIKE "%{word}%" OR o.text LIKE "%{word}%")"""]
+        base_reqest=f"""
+            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            FROM orders AS o 
+            JOIN users AS u ON o.login = u.login
+            WHERE o.login = ?"""
+        elements=[login]
+        if whats_reqest=="all":
+            base_reqest=base_reqest+parts_reqest[0]+parts_reqest[2]+parts_reqest[3]
+            elements.extend([date_last,date_next,key,])
+        elif whats_reqest=="period":
+            base_reqest=base_reqest+parts_reqest[0]+parts_reqest[2]
+            elements.extend([date_last, date_next,key,])
+        elif whats_reqest=="day_word":
+            base_reqest=base_reqest+parts_reqest[1]+parts_reqest[3]+parts_reqest[2]
+            elements.extend([date_last, date_next,key,])
+        elif whats_reqest=="day":
+            base_reqest=base_reqest+parts_reqest[1]+parts_reqest[2]
+            elements.extend([date_last,key])
+        elif whats_reqest=="word":
+            base_reqest=base_reqest+parts_reqest[3]+parts_reqest[2]
+            elements.extend([key])
+
+        return [base_reqest,elements]
 
 
-               """, ([login, date_last, date_next, key])
 
-        )
+
+
+
+    def return_info_reqest(self,whats_reqest, login,date_last,date_next,word,key):
+        po=self.create_reqest(whats_reqest,login,date_last,date_next,word,key)
+        print(po)
+        select_info =f"""
+            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            FROM orders AS o 
+            JOIN users AS u ON o.login = u.login
+            WHERE o.login = ? AND o.date_created BETWEEN ? and ? AND status = ? AND (o.title LIKE "%{word}%" OR o.text LIKE "%{word}%") """
+        list_info = (login,date_last,date_next,key,)
+        self.cursor.execute(po[0], po[1])
         return self.cursor.fetchall()
 
 
@@ -98,17 +126,19 @@ class Orders():
         self.cursor.execute(select_info, list_info)
         return self.cursor.fetchall()
 
-    def return_info(self,login):
+    def return_info(self, login):
         self.cursor.execute(
             """
             SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id, o.comment
             FROM orders AS o 
             JOIN users AS u ON o.login = u.login
             WHERE o.login = ?
-            """,(login,)
+            """, (login,)
 
         )
         return self.cursor.fetchall()
+
+
 
     def return_info_dd(self,login,date_last,date_next):
         self.cursor.execute(
