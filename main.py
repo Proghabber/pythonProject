@@ -760,7 +760,7 @@ class Win(tkinter.Tk):
                 list_reqests.append(self.oders_db.return_info_reqest(obi[0],login, obi[1]["last"], obi[1]["next"],''
                                                                       ,"Выполнено"))
             list_reqests=[li for li in list_reqests if len(li)]
-            print(list_reqests)
+
             return list_reqests
 
         def count_users(self):
