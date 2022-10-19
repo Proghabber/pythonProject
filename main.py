@@ -8,6 +8,7 @@ import sqlite3
 import threading
 import time
 import db_class
+import search_class
 
 
 
@@ -719,9 +720,11 @@ class Win(tkinter.Tk):
             собирает значения combobox из поиска в словарь
             :return:
             """
+
             names=("last_day","next_day","last_month","next_month","last_year","next_year","word")
             sarch_combobox_get={}
             list_login = self.count_users()
+            list_info=[]
 
             count=0
 
@@ -729,8 +732,13 @@ class Win(tkinter.Tk):
                 for g in self.wiwets:
                     if g.winfo_id()==self.sarch_combobox[count]:
                         sarch_combobox_get[i]=g.get()
+                        list_info.append([i,g.get()])
+
                 count+=1
-            result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
+            search_obi = search_class.Search(list_info)
+            search_obi=search_obi.whats_search(["last","next"],["word"],None)
+            result=self.select_funk(search_obi)
+            #result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
             if list_login:
                 if all(result)==False:
                     massege.showinfo("Поиск","Поиск не дал результатов")
@@ -742,7 +750,17 @@ class Win(tkinter.Tk):
 
             self.click_to_notebook(result)
 
-            return sarch_combobox_get
+            #return sarch_combobox_get
+
+        def select_funk(self,obi,):
+            list_login = self.count_users()
+            reqest=""
+            list_reqests=[]
+            for login in list_login:
+                if obi[0]=="all":
+                    list_reqests.append(self.oders_db.return_info_search( login, str(obi[1]["last"]), str(obi[1]["next"]),obi[1]["word"]
+                                                                      ,"Взято на контроль"))
+            print(list_reqests)
 
         def count_users(self):
             """

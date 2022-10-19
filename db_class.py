@@ -76,6 +76,21 @@ class Orders():
             """
         )
 
+    def return_info_search(self, login, date_last, date_next, word,key):
+        self.cursor.execute(
+            f"""
+               SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+               FROM orders AS o 
+               JOIN users AS u ON o.login = u.login
+               WHERE o.login = ? AND o.title LIKE '%{word}%' OR o.text LIKE '%{word}%'
+               AND o.date_created BETWEEN ? AND ? AND status =?
+
+
+               """, ([login, date_last, date_next, key])
+
+        )
+        return self.cursor.fetchall()
+
 
     def return_dc_wa(self, id):
         select_info=""" SELECT date_complete,who_maked,login FROM orders WHERE id=?"""
