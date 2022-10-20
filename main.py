@@ -618,20 +618,25 @@ class Win(tkinter.Tk):
             days = list(range(1, 32))
             months = list(range(1, 13))
             years = list(range(2021, 2099))
+            status = ["Активно","Взято на контроль","Выполнено","Все"]
             row = 0
             column = 1
-            list_box = self.create_wigets("Combobox", 6, (days, days, months, months, years, years), ())
+            list_box = self.create_wigets("Combobox", 7, (days, days, months, months, years, years,status), ())
             sarch_word = self.create_wigets("Entery", 1, (), ())[0]
             list_box.append(sarch_word)
             self.wreate_sarch_combobox(list_box)
+            counter=1
             for i in list_box:
                 if column == 3:
                     row += 1
                     column = 1
                 i.grid(in_=frame, row=row, column=column, )
+                if counter==7:
+                    i.current(3)
                 self.wiwets.append(i)
                 column += 1
-            sarch_word.grid(in_=frame, row=4, column=1, )
+                counter+=1
+            #sarch_word.grid(in_=frame, row=4, column=1, )
             self.wiwets.append(sarch_word)
 
         def pack_label(self,frame):
@@ -639,18 +644,23 @@ class Win(tkinter.Tk):
             :param frame: место размещения
             :return:
             """
-            row = 0
+            row = -1
             column = 0
-            for i in self.create_wigets("lable", 6, ("from days", "from months", "from years", "to days", " to months",
-                                                     "to years"), ()):
-                if row == 3:
-                    row = 0
-                    column = 3
+            step = 0
+            for i in self.create_wigets("lable", 8, ("from days", "to days", "from months", "to months", " to years",
+                                                     "to years","status","Word"), ()):
+                if step % 2 ==0:
+                    row+=1
                 i.grid(in_=frame, row=row, column=column, )
                 self.wiwets.append(i)
-                row += 1
-            sarch_word_l = self.create_wigets("lable", 1, ("Word",), ())[0]
-            sarch_word_l.grid(in_=frame, row=4, column=0, )
+                if column==3:
+                    column=0
+                else:
+                    column =3
+                step+=1
+
+
+
 
 
         def put_button(self,flag):
@@ -691,7 +701,7 @@ class Win(tkinter.Tk):
             skroll.bind("<Motion>", lambda event:self.swow_but(frame_sarch,fremer))
             skroll.bind("<Button-1>", lambda event: self.swow_but(frame_sarch,fremer))
 
-            
+
             self.wiwets.extend((sarch_button,skroll,fremer,frame_sarch,mane_frame,))
 
         def wreate_sarch_combobox(self,list):
@@ -721,7 +731,7 @@ class Win(tkinter.Tk):
             :return:
             """
 
-            names=("last_day","next_day","last_month","next_month","last_year","next_year","word")
+            names=("last_day","next_day","last_month","next_month","last_year","next_year","word","key")
             sarch_combobox_get={}
             list_login = self.count_users()
             list_info=[]
@@ -736,7 +746,7 @@ class Win(tkinter.Tk):
 
                 count+=1
             search_obi = search_class.Search(list_info)
-            search_obi=search_obi.whats_search(["last","next"],["word"],None)
+            search_obi=search_obi.whats_search(["last","next"],["word"],["key"])
             result=self.select_funk(search_obi)
             #result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
             if list_login:
@@ -754,11 +764,10 @@ class Win(tkinter.Tk):
 
         def select_funk(self,obi,):
             list_login = self.count_users()
-            reqest=""
             list_reqests=[]
             for login in list_login:
-                list_reqests.append(self.oders_db.return_info_reqest(obi[0],login, obi[1]["last"], obi[1]["next"],''
-                                                                      ,"Выполнено"))
+                list_reqests.append(self.oders_db.return_info_reqest(obi[0],login, obi[1]["last"], obi[1]["next"],obi[1]["word"][0]
+                                                                      ,obi[1]["key"][0]))
             list_reqests=[li for li in list_reqests if len(li)]
 
             return list_reqests

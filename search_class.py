@@ -17,12 +17,14 @@ class Search():
                 last_.append(self.__dict__[i])
             elif data[1] in i:
                 next_.append(self.__dict__[i])
-            elif parametr != None:
-                if parametr in i:
-                    key.append(self.__dict__[i])
-            else:
-                if self.__dict__[i] !='':
+            elif parametr[0] in  i:
                     word_.append(self.__dict__[i])
+            elif word[0] in i:
+                if self.__dict__[i]!="Все":
+                    key.append(self.__dict__[i])
+                else:
+                    key.append("*")
+
         next_=[int(i) for i in next_ if i != ""]
         last_=[int(i) for i in last_ if i != ""]
         next_.reverse()
@@ -38,7 +40,6 @@ class Search():
 
         rez={}
         rez["last"]=last_1
-        print(type(rez["last"]))
         rez["next"]=next_1
         rez["word"]=word_
         rez["key"]=key
