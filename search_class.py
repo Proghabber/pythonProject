@@ -18,7 +18,12 @@ class Search():
             elif data[1] in i:
                 next_.append(self.__dict__[i])
             elif parametr[0] in  i:
-                    word_.append(self.__dict__[i])
+                    if self.__dict__[i]!="":
+                        word_.append(self.__dict__[i])
+                    else:
+                        word_.append(None)
+
+
             elif word[0] in i:
                 if self.__dict__[i]!="Все":
                     key.append(self.__dict__[i])
@@ -48,16 +53,16 @@ class Search():
 
     def select_fun(self,dict_):
         complet=""
-        if (dict_["last"] != None and dict_["next"] != None) and len(dict_["word"])!=0:
+        if (dict_["last"] != None and dict_["next"] != None) and dict_["word"][0]!=None:
             complet= "all"
-        elif (dict_["last"] != None and dict_["next"] != None) and len(dict_["word"])==0:
+        elif (dict_["last"] != None and dict_["next"] != None) and dict_["word"][0]==None:
             complet= "period"
-        elif (dict_["last"] != None and dict_["next"] == None) and len(dict_["word"])!=0:
+        elif (dict_["last"] != None and dict_["next"] == None) and dict_["word"][0]!=None:
             complet= "day_word"
-        elif (dict_["last"] != None and dict_["next"] == None) and len(dict_["word"])==0:
+        elif (dict_["last"] != None and dict_["next"] == None) and dict_["word"][0]==None:
             complet= "day"
-        elif (dict_["last"] == None and dict_["next"] == None) and len(dict_["word"])!=0:
+        elif (dict_["last"] == None and dict_["next"] == None) and dict_["word"][0]!=None:
             complet= "word"
-        elif (dict_["last"] == None and dict_["next"] == None) and len(dict_["word"])==0:
+        elif (dict_["last"] == None and dict_["next"] == None) and dict_["word"][0]==None:
             complet= "list"
         return [complet,dict_]

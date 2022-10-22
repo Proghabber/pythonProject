@@ -426,7 +426,7 @@ class Win(tkinter.Tk):
             принимает заказ
             """
             try:
-                self.oders_db.update_order("accept", id_order, who_accept, )
+                self.oders_db.update_order("accept", id_order, who_accept,None )
                 massege.showinfo("Сообщение", F"Заявка принята пользователем - {who_accept}")
             except:
                 massege.showerror("Ошибка","Ошибка при записи бд")
@@ -446,9 +446,9 @@ class Win(tkinter.Tk):
             проверяет можно ли остпвить коментарий
             """
             who_make=data[6]
-            is_comment=data[5]
+            is_comment=data[9]
             status=data[2]
-            if who_make == user and is_comment == 'None' and status=='Взято на контроль':
+            if who_make == user and (is_comment == 'None' or is_comment == None) and status=='Взято на контроль':
                 return True
             else:
                 return False
@@ -500,6 +500,9 @@ class Win(tkinter.Tk):
                 text=f"{user} оставил комментарий:\n{text}"
                 try:
                     self.oders_db.update_order("comment",id_,None,text)
+                    vooo=self.oders_db.return_info_reqest(None,id_order[7],None,None,None,None)
+                    orders=[order for order in vooo if order[8]==id_]
+                    self.put_text(orders[0])
                     massege.showinfo("Успех","Коментарий добавлен")
                 except:
                     massege.showerror("Ошибка","Комментарий не добавлен, ошибка бд")
@@ -576,11 +579,8 @@ class Win(tkinter.Tk):
             :return:
             """
 
-            if len(text[3]) > 10:
-                len_mass = 10
-            else:
-                len_mass = len(text[3])
-            but = Button(text=f"{text[0]} {text[1]} {text[2]}-{text[3][0:len_mass]}",
+            text_len=[len(len_) if len(str(len_))<=10 else 10 for len_ in text ]
+            but = Button(text=f"{text[7][0:text_len[7]]} {text[3][0:text_len[3]]} {text[0][0:text_len[0]]} {text[1][0:text_len[1]]}",
                          command=lambda: self.put_text(text))
             self.list_button.append(but)
 
@@ -769,7 +769,7 @@ class Win(tkinter.Tk):
                 list_reqests.append(self.oders_db.return_info_reqest(obi[0],login, obi[1]["last"], obi[1]["next"],obi[1]["word"][0]
                                                                       ,obi[1]["key"][0]))
             list_reqests=[li for li in list_reqests if len(li)]
-
+            print(list_reqests)
             return list_reqests
 
         def count_users(self):
@@ -962,7 +962,7 @@ class Win(tkinter.Tk):
             fanc(id_order,who_accept)
 
             self.create_button()
-            data_new=self.oders_db.return_info(data[0][7])
+            data_new=self.oders_db.return_info_reqest(None,data[0][7],None,None,None,None)
             data_new=[i for i in data_new if int(data[0][8]) in i]
             self.put_text(data_new[0])
 

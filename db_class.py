@@ -77,13 +77,14 @@ class Orders():
         )
 
     def create_reqest(self,whats_reqest, login,date_last,date_next,word,key):
-        parts_reqest=[f"""AND o.date_created BETWEEN ? and ?""",f"""AND o.date_created = ?""",f"""AND status = ?""",f"""AND (o.title LIKE "%{word}%" OR o.text LIKE "%{word}%")"""]
+        parts_reqest=[f"""AND o.date_created BETWEEN ? and ?""",f"""AND o.date_created LIKE "%{date_last}%" """,f"""AND status = ?""",f"""AND (o.title LIKE "%{word}%" OR o.text LIKE "%{word}%")"""]
         base_reqest=f"""
-            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
+            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id, o.comment
             FROM orders AS o 
             JOIN users AS u ON o.login = u.login
             WHERE o.login = ?"""
         elements=[login]
+        #date_last="2022-10-09 23:36:05"
         if key=="*":
             parts_reqest[2]=""
         if whats_reqest=="all":
@@ -94,14 +95,18 @@ class Orders():
             elements.extend([date_last, date_next,key,])
         elif whats_reqest=="day_word":
             base_reqest=base_reqest+parts_reqest[1]+parts_reqest[3]+parts_reqest[2]
-            elements.extend([date_last, date_next,key,])
+            elements.extend([ date_next,key,])
         elif whats_reqest=="day":
             base_reqest=base_reqest+parts_reqest[1]+parts_reqest[2]
-            elements.extend([date_last,key])
+            elements.extend([key])
         elif whats_reqest=="word":
             base_reqest=base_reqest+parts_reqest[3]+parts_reqest[2]
             elements.extend([key])
-        elements=[el for el in elements if el != "*"]
+        elif whats_reqest=="list":
+            base_reqest = base_reqest +parts_reqest[2]
+            elements.extend([key])
+
+        elements=[el for el in elements if (el != "*" and el != None)]
 
         return [base_reqest,elements]
 
@@ -112,7 +117,11 @@ class Orders():
 
     def return_info_reqest(self,whats_reqest, login,date_last,date_next,word,key):
         reqest=self.create_reqest(whats_reqest,login,date_last,date_next,word,key)
-        self.cursor.execute(reqest[0], reqest[1])
+        print(reqest,whats_reqest)
+        try:
+            self.cursor.execute(reqest[0], reqest[1])
+        except:
+            pass
         return self.cursor.fetchall()
 
 
