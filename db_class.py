@@ -112,92 +112,15 @@ class Orders():
 
 
 
-
-
-
     def return_info_reqest(self,whats_reqest, login,date_last,date_next,word,key):
         reqest=self.create_reqest(whats_reqest,login,date_last,date_next,word,key)
-        print(reqest,whats_reqest)
+
         try:
             self.cursor.execute(reqest[0], reqest[1])
         except:
             pass
         return self.cursor.fetchall()
 
-
-    def return_dc_wa(self, id):
-        select_info=""" SELECT date_complete,who_maked,login FROM orders WHERE id=?"""
-        list_info=(id,)
-        self.cursor.execute(select_info, list_info)
-        return self.cursor.fetchall()
-
-    def return_info(self, login):
-        self.cursor.execute(
-            """
-            SELECT o.title, o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login,o.id, o.comment
-            FROM orders AS o 
-            JOIN users AS u ON o.login = u.login
-            WHERE o.login = ?
-            """, (login,)
-
-        )
-        return self.cursor.fetchall()
-
-
-
-    def return_info_dd(self,login,date_last,date_next):
-        self.cursor.execute(
-            """
-            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
-            FROM orders AS o 
-            JOIN users AS u ON o.login = u.login
-            WHERE o.login = ? AND o.date_created BETWEEN ? AND ?
-            """, ([login,date_last,date_next])
-
-        )
-        return self.cursor.fetchall()
-
-    def return_info_ddw(self,login,date_last,date_next,word):
-        self.cursor.execute(
-            f"""
-            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
-            FROM orders AS o 
-            JOIN users AS u ON o.login = u.login
-            WHERE o.login = ? AND o.title LIKE '%{word}%' OR o.text LIKE '%{word}%'
-            AND o.date_created BETWEEN ? AND ? 
-            
-            
-            """, ([login,date_last,date_next])
-
-        )
-        return self.cursor.fetchall()
-
-    def return_info_d(self, login, date_last,):
-        self.cursor.execute(
-            f"""
-            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
-            FROM orders AS o 
-            JOIN users AS u ON o.login = u.login
-            WHERE o.login = ? AND o.date_created LIKE '%{date_last}%'
-            """, ([login])
-
-        )
-        return self.cursor.fetchall()
-
-    def return_info_w(self, login,word):
-        self.cursor.execute(
-            f"""
-            SELECT o.title,o.text, o.status, o.date_created, o.date_accept, o.date_complete, o.who_maked, o.login
-            FROM orders AS o 
-            JOIN users AS u ON o.login = u.login
-            WHERE o.login = ? AND o.title LIKE '%{word}%' OR o.text LIKE '%{word}%'
-             
-
-
-            """, ([login])
-
-        )
-        return self.cursor.fetchall()
 
 
     def write_order(self,title,text,login):

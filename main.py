@@ -436,7 +436,7 @@ class Win(tkinter.Tk):
             завершает заказ
             """
             try:
-                self.oders_db.update_order("complete", id_order, who_accept, )
+                self.oders_db.update_order("complete", id_order, who_accept, None)
                 massege.showinfo("Сообщение", F"Заявка завершена")
             except:
                 massege.showerror("Ошибка", "Ошибка при записи бд")
@@ -535,7 +535,7 @@ class Win(tkinter.Tk):
             :param data: данные из sql таблици
             :return:
             """
-            #data=self.oders_db.return_info(self.name)
+
 
             self.list_button_info = []
 
@@ -748,7 +748,7 @@ class Win(tkinter.Tk):
             search_obi = search_class.Search(list_info)
             search_obi=search_obi.whats_search(["last","next"],["word"],["key"])
             result=self.select_funk(search_obi)
-            #result=self.count_sarch_parametrs(sarch_combobox_get,list_login)
+
             if list_login:
                 if all(result)==False:
                     massege.showinfo("Поиск","Поиск не дал результатов")
@@ -787,76 +787,8 @@ class Win(tkinter.Tk):
             return list_users
 
 
-        def count_sarch_parametrs(self,dict_,list_login):
-            """
-            собирает словарь с подготовленными параметрами  передает его take_info_in_bd() и возврящает результат
-            :param dict_:
-            :param list_login:
-            :return:
-            """
-            complit_count = {}
-            listok=("year","month","day")
-            complit_count["list_l"]=list(int(dict_["last_"+i]) for i in listok if dict_["last_"+i]!="")
-            complit_count["list_n"]=list(int(dict_["next_"+i]) for i in listok if dict_["next_"+i]!="")
-            complit_count["list_w"]=list(dict_[i] for i in dict_ if "word" in i and dict_[i]!="")
-            if len(complit_count["list_l"])<3:
-                complit_count["list_l"].append(0)
-            if len(complit_count["list_n"])<3:
-                complit_count["list_n"].append(0)
-            last,next,word=all(complit_count["list_l"]),all(complit_count["list_n"]),all(complit_count["list_w"])
-            all_find=[last,next,word]
-            complit_count["only_period"]=all_find[0:2]
-            complit_count["strictly_date"]=all_find[0]
-            complit_count["find"]=(all(all_find),all(complit_count["only_period"]),complit_count["strictly_date"])
-            complit_count["list_login"]=list_login
-            complit_data = self.take_info_in_bd(complit_count)
-            return complit_data
 
-        def count_parametrs(self,):
-            list_login=self.count_users()
-            complit_count = {}
-            complit_count["list_l"] = []
-            complit_count["list_n"] = []
-            complit_count["list_w"] = []
-            if len(complit_count["list_l"]) < 3:
-                complit_count["list_l"].append(0)
-            if len(complit_count["list_n"]) < 3:
-                complit_count["list_n"].append(0)
-            last, next, word = all(complit_count["list_l"]), all(complit_count["list_n"]), all(complit_count["list_w"])
-            all_find = [last, next, word]
-            complit_count["only_period"] = all_find[0:2]
-            complit_count["strictly_date"] = all_find[0]
-            complit_count["find"] = (all(all_find), all(complit_count["only_period"]), complit_count["strictly_date"])
-            complit_count["list_login"] = list_login
-            complit_data = self.take_info_in_bd(complit_count)
-            return complit_data
 
-        def take_info_in_bd(self,complit_count:dict):
-            """
-            на основании заполненности запроса(complit_count), выбирает запрос для базы данных и возвращает результат
-            :param complit_count:
-            :return:
-            """
-            data=[]
-            if all(complit_count["find"])==True:
-                for login in complit_count["list_login"]:
-                    data.append(self.oders_db.return_info_ddw(login,datetime.date(*complit_count["list_l"]),
-                                datetime.date(*complit_count["list_n"]),*complit_count["list_w"]))
-            elif all(complit_count["only_period"])==True:
-                for login in complit_count["list_login"]:
-                    data.append(self.oders_db.return_info_dd(login,datetime.date(*complit_count["list_l"]),
-                                datetime.date(*complit_count["list_n"])))
-            elif  bool(complit_count["strictly_date"])==True:
-                for login in complit_count["list_login"]:
-                    data.append(self.oders_db.return_info_d(login,datetime.date(*complit_count["list_l"])))
-            elif bool(complit_count["list_w"])==True:
-                for login in complit_count["list_login"]:
-                    data.append(self.oders_db.return_info_w(login,*complit_count["list_w"]))
-            else:
-                for login in complit_count["list_login"]:
-                    data.append(self.oders_db.return_info(login))
-            data=[i for i in data if i]
-            return data
 
         def create_wigets(self,types,amount,args,funk):
 
@@ -891,6 +823,16 @@ class Win(tkinter.Tk):
                     list_new.append(i)
             return list_new
 
+        def take_my_all_order(self):
+            """
+            возвращает все заказы из базы
+            """
+            list_oders=[]
+            self.count_users()
+            for user in self.count_users():
+                list_oders.append(self.oders_db.return_info_reqest(None, user, None, None, None, None))
+            return list_oders
+
         def put_text(self, text):
             """
             формерует и размещает текст и текстовое поле на экране
@@ -902,7 +844,7 @@ class Win(tkinter.Tk):
             self.del_wiget(self.wiwets)
             self.wiwets=[]
             frame_but = Frame(self.frame_text_oders)
-            but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.count_parametrs()))
+            but_back = Button(frame_but, text="Назад", command=lambda: self.click_to_notebook(self.take_my_all_order()))
             chec_statys = Button(frame_but, text="Выполнено", command=lambda: self.ask_user(
                                     "Внимание","Вы хотите завершить заявку?",self.update_status,[[text,self.name],self.complit_order]))
             chec_accept = Button(frame_but, text="Принять заявку", command=lambda: self.ask_user(
@@ -938,7 +880,6 @@ class Win(tkinter.Tk):
             """
             who_i=user
             who_start_order=order[7]
-            who_accept=order[6]
             status_order=order[2]
             status=""
             if self.admin == "admin" and who_i != who_start_order and status_order == "Активно":
@@ -1009,7 +950,7 @@ winner.set_parametrs()
 winner.pack_widgets()
 winner.user_db.create_table()
 winner.oders_db.create_table()
-winner.oders_db.return_info_dd(0,0,0)
+
 winner.hi_client()
 cot=threading.Thread(target=winner.call_of_admin,daemon = True)
 cot.start()
